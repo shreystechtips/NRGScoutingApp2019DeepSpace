@@ -1,17 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Application xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="NRGScoutingApp.App">
-    <Application.Resources>
-            <ResourceDictionary x:Name="DarkTheme">
-               <Color x:Key="TabAccentColor">White</Color>
-            <Color x:Key="TabMainColor">Red</Color>
-            <Color x:Key="TabTextColor">Black</Color>
-            <Color x:Key="backgroundColor">#000000</Color>
-            
-            <Color x:Key="TextPrimaryColor">#FFFFFF</Color>
-            <Color x:Key="TextSecondaryColor">#B0FFFFFF</Color>
-            <Color x:Key="TextTernaryColor">#C8C8C8</Color>
-          </ResourceDictionary>
-        <ResourceDictionary x:Name="LightTheme">
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="NRGScoutingApp.LightTheme">
+   
             <Color x:Key="Primary">#d7401a</Color>
             <Color x:Key="PrimaryDark">#ff401a</Color>
             <Color x:Key="Accent">#ffa999</Color>
@@ -33,7 +24,4 @@
                 <Setter Property="BarBackgroundColor" Value="{StaticResource Primary}"/>
                 <Setter Property="BarTextColor" Value="White"/>
             </Style>
-        </ResourceDictionary>
-    </Application.Resources>
-</Application>
-<!--#fdd835 icon color-->
+</ResourceDictionary>

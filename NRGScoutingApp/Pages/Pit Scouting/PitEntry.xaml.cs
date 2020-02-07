@@ -40,9 +40,10 @@ namespace NRGScoutingApp {
                     Text = ConstantVars.QUESTIONS[i],
                     MinimumWidthRequest = 1000,
                     MinimumHeightRequest = 300,
-                    Margin = new Thickness (10, 5, 0, 0),
+                    Margin = new Thickness(10, 5, 0, 0),
                     FontAttributes = FontAttributes.Bold,
-                };
+                    //TextColor = (Color)App.Current.Resources["TextPrimaryColor"]
+            };
                 inputs[i] = new Editor {
                     Placeholder = "Type Here",
                     MinimumWidthRequest = 1000,

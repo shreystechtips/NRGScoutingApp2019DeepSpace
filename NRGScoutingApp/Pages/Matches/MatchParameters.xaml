@@ -6,14 +6,23 @@
     ios:Page.UseSafeArea="true"
     Icon="ic_assignment.png"
     ios:Title="Match Info"
-    ios:NavigationPage.PrefersLargeTitles="true">
+    ios:NavigationPage.PrefersLargeTitles="true"
+             BackgroundColor="{DynamicResource backgroundColor}">
+
+    <ContentPage.Resources>
+        <Style TargetType="Label">
+            <Setter Property="TextColor" Value="{DynamicResource TextPrimaryColor}" />
+        </Style>
+    </ContentPage.Resources>
+
     <ContentPage.Content NavigationPage.HasNavigationBar="False">
+
         <ScrollView>
             <StackLayout>
                 <Label Text="Change Team"
+                       TextColor="{DynamicResource TextPrimaryColor}"
                     Margin="10"
                     FontSize="20"
-                    TextColor="Blue"
                     x:Name="teamChanger">
                     <Label.GestureRecognizers>
                         <TapGestureRecognizer Tapped="teamChanged"/>
@@ -23,6 +32,7 @@
                     Direction="Row"
                     AlignItems="Center">
                     <Label Text="Match Number:"
+                           
                         Margin="10"
                         FontSize="20"/>
                     <Entry Placeholder="(Type Here)"

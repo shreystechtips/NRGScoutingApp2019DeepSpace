@@ -5,15 +5,17 @@
     xmlns:ios="clr-namespace:Xamarin.Forms.PlatformConfiguration.iOSSpecific;assembly=Xamarin.Forms.Core"
     ios:Page.UseSafeArea="true"
     ios:NavigationPage.PrefersLargeTitles="true"
-    Title="{Binding teamName}">
+    Title="{Binding teamName}"
+             BackgroundColor="{DynamicResource backgroundColor}">
     <ContentPage.Resources>
-        <ResourceDictionary>
-            <Style x:Key="labels" TargetType="Label">
+            <Style TargetType="Label">
                 <Setter Property="FontSize" Value="Medium"/>
-                <Setter Property="TextColor" Value="Black"/>
+                <Setter Property="TextColor" Value="{DynamicResource TextPrimaryColor}"/>
                 <Setter Property="FontAttributes" Value="Bold"/>
             </Style>
-        </ResourceDictionary>
+            <Style TargetType="Editor">
+                <Setter Property="TextColor" Value="{DynamicResource TextPrimaryColor}"/>
+            </Style>
     </ContentPage.Resources>
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Back" Clicked="backClicked" x:Name="backButton"/>
@@ -25,7 +27,6 @@
                 <Label Text="Change Team"
                     Margin="10"
                     FontSize="20"
-                    TextColor="Blue"
                     x:Name="teamChanger">
                     <Label.GestureRecognizers>
                         <TapGestureRecognizer Tapped="teamChanged"/>

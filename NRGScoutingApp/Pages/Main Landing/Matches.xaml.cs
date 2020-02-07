@@ -131,7 +131,7 @@ namespace NRGScoutingApp {
             await DisplayAlert ("Hold it", "Make sure export to data first", "OK");
             var del = await DisplayAlert ("Notice", "Do you want to delete all matches? Data CANNOT be recovered.", "Yes", "No");
             if (del) {
-                JObject s = JObject.Parse(Preferences.Get("matchEventsString", ""));
+                JObject s = JObject.Parse(Preferences.Get("matchEventsString", "{}x "));
                 if (s.ContainsKey("Matches"))
                 {
                     s.Remove("Matches");

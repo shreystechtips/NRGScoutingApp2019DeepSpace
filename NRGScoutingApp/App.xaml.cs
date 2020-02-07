@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Security.Principal;
 using Xamarin.Forms;
+using Xamarin.Essentials;
 
 namespace NRGScoutingApp {
     public partial class App : Application {
@@ -17,6 +16,9 @@ namespace NRGScoutingApp {
                 DependencyService.Register<MockDataStore> ();
             else
                 DependencyService.Register<CloudDataStore> ();
+            Teams.populateTeamList(Preferences.Get(ConstantVars.TEAM_LIST_STORAGE,"[]"), teamsList);
         }
+
+        public static Dictionary<int, String> teamsList = new Dictionary<int, String>();
     }
 }

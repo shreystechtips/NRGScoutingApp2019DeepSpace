@@ -4,10 +4,9 @@
     x:Class="NRGScoutingApp.NavTab"
     xmlns:android="clr-namespace:Xamarin.Forms.PlatformConfiguration.AndroidSpecific;assembly=Xamarin.Forms.Core"
     android:TabbedPage.ToolbarPlacement="Bottom"
-    android:TabbedPage.BarItemColor="{StaticResource TabAccentColor}"
-    android:TabbedPage.BarSelectedItemColor="{StaticResource TabMainColor}"
-    android:TabbedPage.BarBackgroundColor="{StaticResource TabBGColor}"
-    Title="NRG Scouting">
-    <ContentPage.Content>
-    </ContentPage.Content>
+    android:TabbedPage.BarItemColor="{DynamicResource TabAccentColor}"
+    android:TabbedPage.BarSelectedItemColor="{DynamicResource TabMainColor}"
+    android:TabbedPage.BarBackgroundColor="{DynamicResource backgroundColor}"
+    Title="NRG Scouting"
+            BackgroundColor="{DynamicResource backgroundColor}">
 </TabbedPage>

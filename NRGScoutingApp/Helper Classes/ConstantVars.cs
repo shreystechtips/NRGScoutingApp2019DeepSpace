@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 namespace NRGScoutingApp {
     public class ConstantVars {
         /*
@@ -7,8 +7,18 @@ namespace NRGScoutingApp {
          */
 
         /*
+         * 
          * CubeDropDialog
          */
+
+        public static readonly string SCOUTING_API_NAME = "NRG_API_KEY";
+        public static readonly string SCOUTING_API_KEY = "API_KEY   ";
+        public static readonly string SCOUTING_API_SITE = "http://api.nrg948.com";
+        //https://nrg-scouting-api.herokuapp.com
+        public static readonly int APP_YEAR = 2020;
+        public static readonly String TEAM_LIST_STORAGE = "TeamsList";
+
+
         public static readonly String DROP_1_DIALOG_TEXT = "Low";
         public static readonly String DROP_2_DIALOG_TEXT = "Medium";
         public static readonly String DROP_3_DIALOG_TEXT = "High";

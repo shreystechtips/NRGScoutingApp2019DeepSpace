@@ -6,7 +6,8 @@
     ios:Page.UseSafeArea="true"
     ios:NavigationPage.PrefersLargeTitles="true"
     Title="Matches"
-    Icon="ic_match.png">
+    Icon="ic_match.png"
+                 BackgroundColor="{DynamicResource backgroundColor}">
     <ContentPage.ToolbarItems>
         <ToolbarItem Icon="plus.png"
             Clicked="newClicked"/>
@@ -19,6 +20,7 @@
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <Grid HorizontalOptions="CenterAndExpand"
+          
             RowSpacing="0"
             ColumnSpacing="0"
             Margin="0"
@@ -42,7 +44,8 @@
                     Margin="0,0,0,0"
                     ItemTapped="Handle_ItemTapped"
                     HasUnevenRows="true"
-                    Footer="">
+                    Footer=""
+                          BackgroundColor="{DynamicResource backgroundColor}">
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <ViewCell>
@@ -51,10 +54,12 @@
                                     Padding="0"
                                     Margin="0">
                                     <Label Text="{Binding matchNum}"
+                                           TextColor="{DynamicResource TextPrimaryColor}"
                                         x:Name="key"
                                         HorizontalTextAlignment="Start"
                                         Margin="0"/>
                                     <Label Text="{Binding teamNameAndSide}"
+                                           TextColor="{DynamicResource TextPrimaryColor}"
                                         x:Name="value"
                                         HorizontalTextAlignment="Start"
                                         Margin="0"/>

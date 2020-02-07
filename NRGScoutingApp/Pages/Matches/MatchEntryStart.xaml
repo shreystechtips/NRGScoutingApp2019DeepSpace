@@ -5,14 +5,22 @@
     xmlns:ios="clr-namespace:Xamarin.Forms.PlatformConfiguration.iOSSpecific;assembly=Xamarin.Forms.Core"
     Title="Pick Team"
     ios:Page.UseSafeArea="true"
-    ios:NavigationPage.PrefersLargeTitles="true">
+    ios:NavigationPage.PrefersLargeTitles="true" BackgroundColor="{DynamicResource backgroundColor}">
     <ContentPage.Content>
-        <StackLayout Orientation="Vertical" HorizontalOptions="FillAndExpand">
+        <StackLayout Orientation="Vertical" HorizontalOptions="FillAndExpand" BackgroundColor="{DynamicResource backgroundColor}">
             <SearchBar Placeholder="Team Name/Number" TextChanged="SearchBar_OnTextChanged"/>
-            <ListView IsPullToRefreshEnabled="false"
+            <ListView
+                BackgroundColor= "{DynamicResource backgroundColor}"
+                IsPullToRefreshEnabled="True"
                 x:Name="MatchesList"
                 ItemTapped="Handle_ItemTapped"
-                CachingStrategy="RecycleElementAndDataTemplate"/>
+                CachingStrategy="RecycleElementAndDataTemplate">
+                  <ListView.ItemTemplate>
+                    <DataTemplate>
+                    <TextCell Text= "{Binding .}" TextColor="{DynamicResource TextPrimaryColor}"/>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>
