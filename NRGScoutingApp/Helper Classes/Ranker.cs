@@ -16,17 +16,17 @@ namespace NRGScoutingApp {
         private readonly int GIVE_CLIMB_LVL_3_INDEX = 1;
 
         private JArray fullData;
-        private Dictionary<String, double> overallData = new Dictionary<String, double> ();
-        private Dictionary<String, double> cargoData = new Dictionary<String, double> ();
-        private Dictionary<String, double> hatchData = new Dictionary<String, double> ();
-        private Dictionary<String, double> climbData = new Dictionary<String, double> ();
-        private Dictionary<String, double> drop1Data = new Dictionary<String, double> (); // low rocket
-        private Dictionary<String, double> drop2Data = new Dictionary<String, double> (); // mid rocket
-        private Dictionary<String, double> drop3Data = new Dictionary<String, double> (); // high rocket
-        private Dictionary<String, double> drop4Data = new Dictionary<String, double> (); // cargoship
-        private Dictionary<String, double> drop1_4Data = new Dictionary<String, double> ();
-        private Dictionary<String, int> dropAmount = new Dictionary<String, int> ();
-        private Dictionary<String, Color> colorData = new Dictionary<String, Color> ();
+        private Dictionary<int, double> overallData = new Dictionary<int, double>();
+        private Dictionary<int, double> cargoData = new Dictionary<int, double>();
+        private Dictionary<int, double> hatchData = new Dictionary<int, double>();
+        private Dictionary<int, double> climbData = new Dictionary<int, double>();
+        private Dictionary<int, double> drop1Data = new Dictionary<int, double>(); // low rocket
+        private Dictionary<int, double> drop2Data = new Dictionary<int, double>();
+        private Dictionary<int, double> drop3Data = new Dictionary<int, double>();
+        private Dictionary<int, double> drop4Data = new Dictionary<int, double>();
+        private Dictionary<int, double> drop1_4Data = new Dictionary<int, double>();
+        private Dictionary<int, int> dropAmount = new Dictionary<int, int>();
+        private Dictionary<int, Color> colorData = new Dictionary<int, Color>();
 
         //PRE: data is in JSON Format
         public Ranker (String data) {
@@ -47,7 +47,7 @@ namespace NRGScoutingApp {
          * This is the order in which the array is ordered
          * overall, cargoTime, hatchTime, climb, lvl1, lvl2, lvl3
          */
-        public String[] returnTeamTimes (string team) {
+        public String[] returnTeamTimes (int team) {
             String[] retValues = new String[ConstantVars.numRankTypes];
             if (cargoData.ContainsKey (team)) {
                 retValues[1] = timeAdaptiveString ((int) cargoData[team]);
@@ -104,7 +104,7 @@ namespace NRGScoutingApp {
             }
         }
 
-        public Dictionary<string, Color> getColors () {
+        public Dictionary<int, Color> getColors () {
             return colorData;
         }
 
@@ -114,13 +114,11 @@ namespace NRGScoutingApp {
          * POST: Dictionary<String,double> type
          * Used for populating the listView in Rankings Page
          */
-        public Dictionary<String, double> getRank (MatchFormat.CHOOSE_RANK_TYPE x) {
+        public Dictionary<int, double> getRank (MatchFormat.CHOOSE_RANK_TYPE x) {
             refresh ();
             switch (x) {
                 case MatchFormat.CHOOSE_RANK_TYPE.pick1: //hatch
                     return timeFixer (hatchData);
-                case MatchFormat.CHOOSE_RANK_TYPE.pick2: //cargo
-                    return timeFixer (cargoData);
                 case MatchFormat.CHOOSE_RANK_TYPE.drop1:
                     return timeFixer (drop1_4Data);
                 case MatchFormat.CHOOSE_RANK_TYPE.drop2:
@@ -133,12 +131,12 @@ namespace NRGScoutingApp {
                     return overallData;
                 default:
                     Console.WriteLine ("ERROR: WRONG RANK TYPE");
-                    return new Dictionary<string, double> ();
+                    return new Dictionary<int, double> ();
             }
         }
 
-        public Dictionary<String, double> timeFixer (Dictionary<string, double> input) {
-            Dictionary<String, double> temp = new Dictionary<string, double> (input);
+        public Dictionary<int, double> timeFixer (Dictionary<int, double> input) {
+            Dictionary<int, double> temp = new Dictionary<int, double> (input);
             foreach (var s in input.ToList ()) {
                 temp[s.Key] = Math.Round (ConstantVars.MATCH_SPAN_MS / input[s.Key], 2);
             }
@@ -154,20 +152,18 @@ namespace NRGScoutingApp {
         }
         public void refresh () {
             hatchData = getPickAvgData ((int) MatchFormat.ACTION.pick1);
-            cargoData = getPickAvgData ((int) MatchFormat.ACTION.pick2);
             drop1Data = getDropData ((int) MatchFormat.ACTION.drop1);
             drop2Data = getDropData ((int) MatchFormat.ACTION.drop2);
             drop3Data = getDropData ((int) MatchFormat.ACTION.drop3);
-            drop4Data = getDropData ((int) MatchFormat.ACTION.drop4);
             colorData = cardColor ();
             drop1_4Data = getDrop1_4Data ();
             climbData = getClimbData ();
             overallData = getOverallData ();
         }
 
-        private Dictionary<string, double> getDrop1_4Data () {
-            Dictionary<string, double> returnData = new Dictionary<string, double> (drop1Data);
-            foreach (KeyValuePair<string, double> y in drop4Data) {
+        private Dictionary<int, double> getDrop1_4Data () {
+            Dictionary<int, double> returnData = new Dictionary<int, double> (drop1Data);
+            foreach (KeyValuePair<int, double> y in drop4Data) {
                 if (returnData.ContainsKey (y.Key)) {
                     returnData[y.Key] = (returnData[y.Key] + y.Value);
                 } else {
@@ -177,20 +173,20 @@ namespace NRGScoutingApp {
             return returnData;
         }
 
-        public Dictionary<string, Color> cardColor () {
-            Dictionary<string, Color> teamCards = new Dictionary<string, Color> ();
+        public Dictionary<int, Color> cardColor () {
+            Dictionary<int, Color> teamCards = new Dictionary<int, Color> ();
             foreach (var match in fullData) {
-                if (teamCards.ContainsKey (match["team"].ToString ())) {
+                if (teamCards.ContainsKey ((int)match["team"])) {
                     Color temp = Color.Transparent;
                     if ((bool) match["redCard"]) {
                         temp = Color.Red;
                     } else if ((bool) match["yellowCard"]) {
                         temp = Color.Yellow;
-                        if (teamCards[match["team"].ToString ()].Equals (Color.Yellow)) {
+                        if (teamCards[(int)match["team"]].Equals (Color.Yellow)) {
                             temp = Color.Red;
                         }
                     }
-                    teamCards[match["team"].ToString ()] = mainColor (teamCards[match["team"].ToString ()], temp);
+                    teamCards[(int)match["team"]] = mainColor (teamCards[(int)match["team"]], temp);
                 } else {
                     Color temp = Color.Transparent;
                     if ((bool) match["redCard"]) {
@@ -198,7 +194,7 @@ namespace NRGScoutingApp {
                     } else if ((bool) match["yellowCard"]) {
                         temp = Color.Yellow;
                     }
-                    teamCards[match["team"].ToString ()] = temp;
+                    teamCards[(int)match["team"]] = temp;
                 }
             }
             return teamCards;
@@ -215,16 +211,14 @@ namespace NRGScoutingApp {
         }
 
         // Pre: climbData returns a dictionary that consist of every team appeared
-        public Dictionary<string, double> getOverallData () {
-            Dictionary<string, double> data = new Dictionary<string, double> ();
-            Dictionary<string, double> dropData1 = getDropData ((int) MatchFormat.CHOOSE_RANK_TYPE.drop1);
-            Dictionary<string, double> dropData2 = getDropData ((int) MatchFormat.CHOOSE_RANK_TYPE.drop2);
-            Dictionary<string, double> dropData3 = getDropData ((int) MatchFormat.CHOOSE_RANK_TYPE.drop3);
-            Dictionary<string, double> dropData4 = getDropData ((int) MatchFormat.CHOOSE_RANK_TYPE.drop4);
-            Dictionary<string, double> cargoData = getPickAvgData ((int) MatchFormat.CHOOSE_RANK_TYPE.pick1);
-            Dictionary<string, double> hatcherData = getPickAvgData ((int) MatchFormat.CHOOSE_RANK_TYPE.pick2);
-            Dictionary<string, double> climbData = getClimbData ();
-            foreach (KeyValuePair<string, double> entry in climbData) {
+        public Dictionary<int, double> getOverallData () {
+            Dictionary<int, double> data = new Dictionary<int, double> ();
+            Dictionary<int, double> dropData1 = getDropData ((int) MatchFormat.CHOOSE_RANK_TYPE.drop1);
+            Dictionary<int, double> dropData2 = getDropData ((int) MatchFormat.CHOOSE_RANK_TYPE.drop2);
+            Dictionary<int, double> dropData3 = getDropData ((int) MatchFormat.CHOOSE_RANK_TYPE.drop3);
+            Dictionary<int, double> cargoData = getPickAvgData ((int) MatchFormat.CHOOSE_RANK_TYPE.pick1);
+            Dictionary<int, double> climbData = getClimbData ();
+            foreach (KeyValuePair<int, double> entry in climbData) {
                 double point = 0;
                 if (dropData1.ContainsKey (entry.Key) && drop1Data[entry.Key] > 0) {
                     point += ConstantVars.DROP_1_MULTIPLIER / dropData1[entry.Key];
@@ -235,15 +229,15 @@ namespace NRGScoutingApp {
                 if (dropData3.ContainsKey (entry.Key) && drop3Data[entry.Key] > 0) {
                     point += ConstantVars.DROP_3_MULTIPLIER / dropData3[entry.Key];
                 }
-                if (dropData4.ContainsKey (entry.Key) && drop4Data[entry.Key] > 0) {
-                    point += ConstantVars.DROP_4_MULTIPLIER / dropData4[entry.Key];
-                }
+                //if (dropData4.ContainsKey (entry.Key) && drop4Data[entry.Key] > 0) {
+                //    point += ConstantVars.DROP_4_MULTIPLIER / dropData4[entry.Key];
+                //}
                 if (cargoData.ContainsKey (entry.Key) && cargoData[entry.Key] > 0) {
                     point += ConstantVars.CARGO_MULTIPLIER / cargoData[entry.Key];
                 }
-                if (hatcherData.ContainsKey (entry.Key) && hatcherData[entry.Key] > 0) {
-                    point += ConstantVars.HATCHER_MULTIPLIER / hatcherData[entry.Key];
-                }
+                //if (hatcherData.ContainsKey (entry.Key) && hatcherData[entry.Key] > 0) {
+                //    point += ConstantVars.HATCHER_MULTIPLIER / hatcherData[entry.Key];
+                //}
                 if (dropAmount.ContainsKey (entry.Key) && dropAmount[entry.Key] > 0) {
                     point += ConstantVars.DROP_AMOUNT_MULTIPLIER * dropAmount[entry.Key];
                 }
@@ -254,9 +248,9 @@ namespace NRGScoutingApp {
         }
 
         //Returns average data for drop level passed through (enum int is passed through sortType)
-        public Dictionary<string, double> getDropData (int levelEnum) {
-            Dictionary<string, double> totalData = new Dictionary<string, double> ();
-            Dictionary<string, int> numsData = new Dictionary<string, int> ();
+        public Dictionary<int, double> getDropData (int levelEnum) {
+            Dictionary<int, double> totalData = new Dictionary<int, double> ();
+            Dictionary<int, int> numsData = new Dictionary<int, int> ();
             try {
                 foreach (var match in fullData) {
                     int reps;
@@ -272,12 +266,12 @@ namespace NRGScoutingApp {
                                 if ((int) match["TE" + (i) + "_0"] <= ConstantVars.AUTO_LENGTH && !(bool) match["autoOTele"]) {
                                     doTime /= 2;
                                 }
-                                if (totalData.ContainsKey (match["team"].ToString ())) {
-                                    totalData[match["team"].ToString ()] += doTime;
-                                    numsData[match["team"].ToString ()]++;
+                                if (totalData.ContainsKey ((int)match["team"])) {
+                                    totalData[(int)match["team"]] += doTime;
+                                    numsData[(int)match["team"]]++;
                                 } else {
-                                    totalData.Add (match["team"].ToString (), doTime);
-                                    numsData.Add (match["team"].ToString (), 1);
+                                    totalData.Add ((int)match["team"], doTime);
+                                    numsData.Add ((int)match["team"], 1);
                                 }
                             }
                         }
@@ -286,7 +280,7 @@ namespace NRGScoutingApp {
             } catch (System.NullReferenceException) {
 
             }
-            Dictionary<string, double> pushData = new Dictionary<string, double> ();
+            Dictionary<int, double> pushData = new Dictionary<int, double> ();
             foreach (var data in totalData) {
                 pushData.Add (data.Key, Math.Round (data.Value / numsData[data.Key], 2));
             }
@@ -295,9 +289,9 @@ namespace NRGScoutingApp {
         }
 
         //Returns average data for the climb parameters
-        public Dictionary<String, double> getClimbData () {
-            Dictionary<string, double> totalPoint = new Dictionary<string, double> ();
-            Dictionary<string, double> amountOfMatch = new Dictionary<string, double> ();
+        public Dictionary<int, double> getClimbData () {
+            Dictionary<int, double> totalPoint = new Dictionary<int, double> ();
+            Dictionary<int, double> amountOfMatch = new Dictionary<int, double> ();
             try {
                 foreach (var match in fullData) {
                     int point = 0;
@@ -348,29 +342,29 @@ namespace NRGScoutingApp {
                         }
                     }
 
-                    if (totalPoint.ContainsKey (match["team"].ToString ())) {
-                        totalPoint[match["team"].ToString ()] += point;
-                        amountOfMatch[match["team"].ToString ()] += 1;
+                    if (totalPoint.ContainsKey ((int)match["team"])) {
+                        totalPoint[(int)match["team"]] += point;
+                        amountOfMatch[(int)match["team"]] += 1;
                     } else {
-                        totalPoint.Add (match["team"].ToString (), point);
-                        amountOfMatch.Add (match["team"].ToString (), 1);
+                        totalPoint.Add ((int)match["team"], point);
+                        amountOfMatch.Add ((int)match["team"], 1);
                     }
                 }
             } catch (System.NullReferenceException) {
 
             }
-            Dictionary<string, double> data = new Dictionary<string, double> ();
-            foreach (KeyValuePair<string, double> entry in totalPoint) {
+            Dictionary<int, double> data = new Dictionary<int, double> ();
+            foreach (KeyValuePair<int, double> entry in totalPoint) {
                 data.Add (entry.Key, Math.Round (entry.Value / amountOfMatch[entry.Key], 2));
             }
             return data;
         }
 
         //Returns average data for pick type passed through (enum int is passed through sortType)
-        public Dictionary<string, double> getPickAvgData (int sortType) {
-            Dictionary<string, double> totalData = new Dictionary<string, double> ();
-            Dictionary<string, int> numsData = new Dictionary<string, int> ();
-            Dictionary<string, double> pushData = new Dictionary<string, double> ();
+        public Dictionary<int, double> getPickAvgData (int sortType) {
+            Dictionary<int, double> totalData = new Dictionary<int, double> ();
+            Dictionary<int, int> numsData = new Dictionary<int, int> ();
+            Dictionary<int, double> pushData = new Dictionary<int, double> ();
             try {
                 foreach (var match in fullData) {
                     int reps;
@@ -386,12 +380,12 @@ namespace NRGScoutingApp {
                                 if ((int) match["TE" + (i + 1) + "_0"] <= ConstantVars.AUTO_LENGTH && !(bool) match["autoOTele"]) {
                                     doTime /= 2;
                                 }
-                                if (totalData.ContainsKey (match["team"].ToString ())) {
-                                    totalData[match["team"].ToString ()] += doTime;
-                                    numsData[match["team"].ToString ()]++;
+                                if (totalData.ContainsKey (Convert.ToInt32(match["team"]))) {
+                                    totalData[(int)match["team"]] += doTime;
+                                    numsData[(int)match["team"]]++;
                                 } else {
-                                    totalData.Add (match["team"].ToString (), doTime);
-                                    numsData.Add (match["team"].ToString (), 1);
+                                    totalData.Add ((int)match["team"], doTime);
+                                    numsData.Add ((int)match["team"], 1);
                                 }
                             }
                         }
@@ -414,9 +408,9 @@ namespace NRGScoutingApp {
         //Returns JObject for matches input string
         private JArray getJSON (String input) {
             JObject tempJSON;
-            if (!String.IsNullOrWhiteSpace (Preferences.Get ("matchEventsString", ""))) {
+            if (!String.IsNullOrWhiteSpace (input)) {
                 try {
-                    tempJSON = JObject.Parse (Preferences.Get ("matchEventsString", ""));
+                    tempJSON = JObject.Parse (input);
                 } catch (NullReferenceException) {
                     System.Diagnostics.Debug.WriteLine ("Caught NullRepEx for ranker JObject");
                     tempJSON = new JObject ();

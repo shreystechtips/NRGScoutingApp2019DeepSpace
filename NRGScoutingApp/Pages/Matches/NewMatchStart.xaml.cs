@@ -16,18 +16,19 @@ namespace NRGScoutingApp {
      * To change images for buttons, use the android names above, and use iosCubeImage.Source for the ios cube image
      */
     public partial class NewMatchStart : ContentPage {
-        protected override bool OnBackButtonPressed () {
+        protected override bool OnBackButtonPressed() {
             return true;
         }
 
-        public NewMatchStart () {
+        public NewMatchStart() {
             BindingContext = this;
-            InitializeComponent ();
+            InitializeComponent();
             timeSlider.Maximum = ConstantVars.MATCH_SPAN_MS;
-            Preferences.Set ("appState", "1");
-            NavigationPage.SetHasBackButton (this, false);
-            timerValueSetter ();
-            setEventButtons (isTimerRunning);
+            Preferences.Set("appState", "1");
+            NavigationPage.SetHasBackButton(this, false);
+            timerValueSetter();
+            setEventButtons(isTimerRunning);
+            setPickAndDropButtons();
         }
 
         public static int timerValue = 0;
@@ -38,7 +39,8 @@ namespace NRGScoutingApp {
         public static bool cubeSetDrop;
         public static bool isTimerRunning;
         public static bool setItemToDefault;
-        public static List<MatchFormat.Data> events = new List<MatchFormat.Data> ();
+        public static List<MatchFormat.Data> events = new List<MatchFormat.Data>();
+        public MatchFormat.Data lastEvent = null;
 
         private DateTime timeStartDate;
         private int timerStartVal;
@@ -46,23 +48,20 @@ namespace NRGScoutingApp {
         protected override void OnAppearing () {
 
             if (cubeSetDrop) {
-                cubePicked.Text = ConstantVars.ITEM_DROPPED_TEXT_LIVE;
-                cubePicked.Image = ConstantVars.ITEM_DROPPED_IMAGE_LIVE;
                 cubeSetDrop = false;
             }
             if (setItemToDefault) {
-                cubePicked.Text = ConstantVars.ITEM_PICKED_TEXT_LIVE;
-                cubePicked.Image = ConstantVars.ITEM_PICKED_IMAGE_LIVE;
                 setItemToDefault = false;
             }
             setClimbButton ();
+            setPickAndDropButtons();
         }
 
         async void resetClicked (object sender, System.EventArgs e) {
             var ensure = await DisplayActionSheet ("Are you sure you want to reset everything about this match?", ConstantVars.CANCEL, null, ConstantVars.YES);
             if (ensure == ConstantVars.YES) {
                 events.Clear ();
-                CubeDroppedDialog.saveEvents ();
+                saveEvents ();
                 timeSlider.Value = 0;
                 isTimerRunning = false;
                 climbTime = 0;
@@ -84,7 +83,7 @@ namespace NRGScoutingApp {
                 setClimbButton ();
                 timeStartDate = DateTime.Now;
                 timerStartVal = 0;
-                setCubeButton ();
+                //setCubeButton ();
                 await Task.Run (async () => {
                     if (Device.RuntimePlatform == "iOS") {
                         Device.StartTimer (TimeSpan.FromMilliseconds (ConstantVars.TIMER_INTERVAL_IOS), () => {
@@ -158,6 +157,7 @@ namespace NRGScoutingApp {
             if (!isTimerRunning) {
                 setEventButtons (isTimerRunning);
             }
+            setPickAndDropButtons();
         }
 
         void climbClicked (object sender, System.EventArgs e) {
@@ -167,41 +167,143 @@ namespace NRGScoutingApp {
                 //Adds info to to JSON about climb
                 climbTime = (int) timerValue;
                 events.Add (new MatchFormat.Data { time = climbTime, type = (int) MatchFormat.ACTION.startClimb });
-                CubeDroppedDialog.saveEvents ();
+                saveEvents ();
                 setClimbButton ();
             }
         }
 
-        async void cubeClicked (object sender, System.EventArgs e) {
-            if (!isTimerRunning) {
-                await DisplayAlert ("Error", "Timer not Started", "OK");
-            } else if (cubePicked.Text == ConstantVars.ITEM_PICKED_TEXT_LIVE) {
-                //Performs actions to open popup for adding cube dropped, etc
-                pickedTime = (int) timerValue;
-                Preferences.Set ("lastItemPicked", (int) pickedTime);
-                String action = "";
-                while (String.IsNullOrWhiteSpace (action)) {
-                    action = await DisplayActionSheet ("Choose Pick Type:", ConstantVars.CANCEL, null, ConstantVars.PICK_1_TEXT, ConstantVars.PICK_2_TEXT);
-                }
-                if (!action.ToString ().Equals (ConstantVars.CANCEL)) {
-                    if (action.ToString ().Equals (ConstantVars.PICK_1_TEXT)) {
-                        events.Add (new MatchFormat.Data { time = (int) pickedTime, type = (int) MatchFormat.ACTION.pick1 });
-                    } else if (action.ToString ().Equals (ConstantVars.PICK_2_TEXT)) {
-                        events.Add (new MatchFormat.Data { time = (int) pickedTime, type = (int) MatchFormat.ACTION.pick2 });
-                    }
-                    cubePicked.Image = ConstantVars.ITEM_DROPPED_IMAGE_LIVE;
-                    cubePicked.Text = ConstantVars.ITEM_DROPPED_TEXT_LIVE;
-                    CubeDroppedDialog.saveEvents ();
-                }
-
-            } else if (cubePicked.Text == ConstantVars.ITEM_DROPPED_TEXT_LIVE) {
-                //Performs action/s to open popup for adding cube dropped, etc
-                droppedTime = (int) timerValue;
-                await Navigation.PushAsync (new CubeDroppedDialog ());
-                cubePicked.Image = ConstantVars.ITEM_PICKED_IMAGE_LIVE;
-                cubePicked.Text = ConstantVars.ITEM_PICKED_TEXT_LIVE;
-            }
+        public static void saveEvents()
+        {
+            Preferences.Set("tempMatchEvents", JsonConvert.SerializeObject(MatchFormat.eventsListToJSONEvents(NewMatchStart.events)));
+            MatchEvents.update = true;
         }
+
+        public int calculateCurrentBalls()
+        {
+            int total = 0;
+            Debug.WriteLine(events.Count + "count");
+            foreach (MatchFormat.Data data in events)
+            {
+                if (data.type == (int)MatchFormat.ACTION.pick1)
+                {
+                    total+= data.num;
+                }
+                else
+                {
+                    total-= data.num;
+                }
+                Debug.WriteLine(data);
+            }
+            Debug.WriteLine(total);
+            return total;
+        }
+
+        MatchFormat.Data findEventAtTime(int time)
+        {
+            for (int i = 0; i < events.Count; i++)
+            {
+                if (events[i].time == time)
+                {
+                    return events[i];
+                }
+            }
+            return null;
+        }
+
+        void pickClicked(object sender, System.EventArgs e)
+        {
+            pickedTime = (int)timerValue;
+            if (lastEvent != null)
+            {
+                MatchFormat.Data initEvent = findEventAtTime(0);
+                if (pickedTime == 0 &&  initEvent != null && initEvent.type == (int)MatchFormat.ACTION.pick1)
+                {
+                    initEvent.num++;
+                }
+                else if (Math.Abs(lastEvent.time - pickedTime) <= ConstantVars.CYCLE_ADD_THRESHOLD && lastEvent.type == (int)MatchFormat.ACTION.pick1)
+                {
+                    lastEvent.num++;
+                }
+                else
+                {
+                    lastEvent = new MatchFormat.Data { time = (int)pickedTime, type = (int)MatchFormat.ACTION.pick1 };
+                    events.Add(lastEvent);
+                }
+            }
+            else
+            {
+                lastEvent = new MatchFormat.Data { time = (int)pickedTime, type = (int)MatchFormat.ACTION.pick1 };
+                events.Add(lastEvent);
+            }
+            int balls = calculateCurrentBalls();
+            currentCellAmt.Text = balls.ToString();
+            setPickAndDropButtons(balls);
+        }
+
+        void undoClicked(object sender, System.EventArgs e)
+        {
+            Debug.WriteLine("reee"+ lastEvent.ToString());
+            if (lastEvent != null)
+            {
+                Debug.WriteLine(lastEvent.num);
+                lastEvent.num--;
+                bool removed = false;
+                if(lastEvent.num <= 0)
+                {
+                    events.Remove(lastEvent);
+                    removed = true;
+                }
+                else if (events.Count > 0 && removed)
+                {
+                    lastEvent = events[events.Count - 1];
+                }
+            }
+            int balls = calculateCurrentBalls();
+            currentCellAmt.Text = balls.ToString();
+            setPickAndDropButtons(balls);
+        }
+
+            void dropClicked(object sender, System.EventArgs e)
+        {
+            Button pressed = (Button)sender;
+            pickedTime = (int)timerValue;
+            MatchFormat.Data item = new MatchFormat.Data { time = pickedTime, type = (int)MatchFormat.ACTION.drop1, num = 1 };
+            switch (pressed.Text.ToLower())
+            {
+                case "none":
+                    break;
+                case "low":
+                    item.type = (int)MatchFormat.ACTION.drop1;
+                    break;
+                case "outside":
+                    item.type = (int)MatchFormat.ACTION.drop2;
+                    break;
+                case "inside":
+                    item.type = (int)MatchFormat.ACTION.drop3;
+                    break;
+                case "":
+                    item = null;
+                    break;
+
+            }
+            if (item != null)
+            {
+                if (lastEvent != null && item.type == lastEvent.type && Math.Abs(lastEvent.time - pickedTime) <= ConstantVars.CYCLE_ADD_THRESHOLD)
+                {
+                    lastEvent.num++;
+                }
+                else
+                {
+                    lastEvent = item;
+                    events.Add(lastEvent);
+                }
+            }
+            int balls = calculateCurrentBalls();
+            currentCellAmt.Text = balls.ToString();
+            setPickAndDropButtons(balls);
+        }
+
+
 
         public void setSlider (double value) {
             timeSlider.Value = value;
@@ -209,15 +311,16 @@ namespace NRGScoutingApp {
 
         //Sets buttons to not clickable if timer is/not running.
         public void setEventButtons (bool setter) {
-            if (setter && isTimerRunning) {
-                climbStart.BackgroundColor = Color.FromHex ("fdad13");
-                cubePicked.BackgroundColor = Color.FromHex ("fdad13");
-            } else {
-                climbStart.BackgroundColor = Color.FromHex ("ffcc6b");
-                cubePicked.BackgroundColor = Color.FromHex ("ffcc6b");
-            }
-            climbStart.IsEnabled = setter;
-            cubePicked.IsEnabled = setter;
+            //if (setter && isTimerRunning) {
+            //    dropInside.BackgroundColor = Color.FromHex ("fdad13");
+            //    dropOutside.BackgroundColor = Color.FromHex("fdad13");
+            //    dropLow.BackgroundColor = Color.FromHex ("fdad13");
+            //    dropNone.BackgroundColor = Color.FromHex("fdad13");
+            //} else {
+            //    climbStart.BackgroundColor = Color.FromHex ("ffcc6b");
+            //    cubePicked.BackgroundColor = Color.FromHex ("ffcc6b");
+            //}
+            setDropButtons(setter);
             timeSlider.IsEnabled = !isTimerRunning;
             if (timerValue >= ConstantVars.MATCH_SPAN_MS) {
                 timerValue = (int) ConstantVars.MATCH_SPAN_MS;
@@ -234,11 +337,10 @@ namespace NRGScoutingApp {
                 Preferences.Set ("lastItemDroppped", 0);
                 Preferences.Set ("tempEventString", "");
                 Preferences.Set ("tempMatchEvents", "");
-                Application.Current.SavePropertiesAsync ();
-            } else if (Preferences.Get ("lastItemPicked", 0) == 0 || Preferences.Get ("lastItemDropped", 0) == 0) { } else if (Preferences.Get ("lastItemDroppped", 0) > Preferences.Get ("lastItemDropped", 0)) {
-                cubePicked.Image = ConstantVars.ITEM_DROPPED_IMAGE_LIVE;
-                cubePicked.Text = ConstantVars.ITEM_DROPPED_TEXT_LIVE;
             }
+            //else if (Preferences.Get ("lastItemPicked", 0) == 0 || Preferences.Get ("lastItemDropped", 0) == 0) { } else if (Preferences.Get ("lastItemDroppped", 0) > Preferences.Get ("lastItemDropped", 0)) {
+            //    cubePicked.Text = ConstantVars.ITEM_DROPPED_TEXT_LIVE;
+            //}
 
             if (!Preferences.ContainsKey ("timerValue")) {
                 Preferences.Set ("timerValue", (int) timerValue);
@@ -257,7 +359,7 @@ namespace NRGScoutingApp {
                 }
             } catch (InvalidCastException) { }
             setEventButtons (isTimerRunning);
-            setCubeButton ();
+            //setCubeButton ();
         }
 
         //sets robot action buttons based on climb start
@@ -282,15 +384,55 @@ namespace NRGScoutingApp {
             return minutes + ":" + seconds.ToString ("D2") + "." + (milliseconds / 10).ToString ("D2");
         }
 
-        private void setCubeButton () {
-            if (events.Count > 0 && (events[events.Count - 1].type == (int) MatchFormat.ACTION.pick1 || events[events.Count - 1].type == (int) MatchFormat.ACTION.pick2)) {
-                cubePicked.Text = ConstantVars.ITEM_DROPPED_TEXT_LIVE;
-                cubePicked.Image = ConstantVars.ITEM_DROPPED_IMAGE_LIVE;
-                pickedTime = events[events.Count - 1].time;
-            } else {
-                cubePicked.Text = ConstantVars.ITEM_PICKED_TEXT_LIVE;
-                cubePicked.Image = ConstantVars.ITEM_PICKED_IMAGE_LIVE;
+        private void setDropButtons(Boolean setter)
+        {
+            dropLow.IsEnabled = setter;
+            dropInside.IsEnabled = setter;
+            dropOutside.IsEnabled = setter;
+            dropNone.IsEnabled = setter;
+        }
+
+        private void setPickAndDropButtons(int currentBalls)
+        {
+            if (isTimerRunning)
+            {
+                if (currentBalls >= 5)
+                {
+                    pickItem.IsEnabled = false;
+                }
+                else
+                {
+                    pickItem.IsEnabled = true;
+                }
             }
+            else if (timerValue == 0 & !isTimerRunning && currentBalls < 5)
+            {
+                pickItem.IsEnabled = true;
+            }
+            else
+            {
+                pickItem.IsEnabled = false;
+            }
+            if (isTimerRunning)
+            {
+                if (currentBalls <= 0)
+                {
+                    setDropButtons(false);
+                }
+                else
+                {
+                    setDropButtons(true);
+                }
+            }
+            else
+            {
+                setDropButtons(false);
+            }
+        }
+        private void setPickAndDropButtons()
+        {
+            int currentBalls = calculateCurrentBalls();
+            setPickAndDropButtons(currentBalls);
         }
     }
 }

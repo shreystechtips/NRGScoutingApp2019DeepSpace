@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -10,17 +11,26 @@ namespace NRGScoutingApp {
     public partial class PitScouting : ContentPage {
         public PitScouting () {
             InitializeComponent ();
-            setListView (Preferences.Get ("matchEventsString", ""));
+            eventName = Preferences.Get(ConstantVars.CURRENT_EVENT_NAME, "");
+            setListView (Preferences.Get (ConstantVars.APP_DATA_STORAGE, ""));
         }
 
         public static List<string> pitItems = new List<string> ();
-
+        string eventName;
         protected override void OnAppearing () {
-            setListView (Preferences.Get ("matchEventsString", ""));
+            setListView (Preferences.Get (ConstantVars.APP_DATA_STORAGE, ""));
+            eventName = Preferences.Get(ConstantVars.CURRENT_EVENT_NAME, "");
         }
 
         void newPit (object sender, System.EventArgs e) {
-            Navigation.PushAsync (new MatchEntryStart (ConstantVars.TEAM_SELECTION_TYPES.pit));
+            if (String.IsNullOrEmpty(Preferences.Get(ConstantVars.CURRENT_EVENT_NAME, "")))
+            {
+                Navigation.PushAsync(new ChangeEventPage());
+            }
+            else
+            {
+                Navigation.PushAsync(new MatchEntryStart(ConstantVars.TEAM_SELECTION_TYPES.pit));
+            }
         }
 
         void SearchBar_OnTextChanged (object sender, Xamarin.Forms.TextChangedEventArgs e) {
@@ -33,9 +43,10 @@ namespace NRGScoutingApp {
 
         async void teamClicked (object sender, Xamarin.Forms.ItemTappedEventArgs e) {
             String teamName = e.Item.ToString ();
-            JArray pitValues = (JArray) JObject.Parse (Preferences.Get ("matchEventsString", "")) ["PitNotes"];
-            Preferences.Set ("teamStart", teamName);
-            await Navigation.PushAsync (new PitEntry (false, teamName, true) { Title = teamName });
+            int teamnum = AdapterMethods.getTeamInt(teamName, App.teamsList);
+            JArray pitValues = (JArray) JObject.Parse (Preferences.Get (ConstantVars.APP_DATA_STORAGE, "")) ["PitNotes"];
+            Preferences.Set ("teamStart", teamnum);
+            await Navigation.PushAsync (new PitEntry (false,  teamnum, true) { Title = teamName });
         }
 
         /*
@@ -52,7 +63,7 @@ namespace NRGScoutingApp {
             if (input.ContainsKey ("PitNotes")) {
                 JArray pits = (JArray) input["PitNotes"];
                 foreach (var x in pits) {
-                    teamsInclude.Add (x["team"].ToString ());
+                    teamsInclude.Add (AdapterMethods.getTeamString((int)x["team"]));
                 }
             }
             return teamsInclude;
@@ -62,10 +73,16 @@ namespace NRGScoutingApp {
             if (!String.IsNullOrWhiteSpace (json)) {
                 try {
                     input = JObject.Parse (json);
+                    Debug.WriteLine(eventName);
+                    if (input.ContainsKey(eventName))
+                    {
+                        input = (JObject)input[eventName];
+                    }
                 } catch (JsonException) {
+                    Debug.WriteLine("mission failed, we'll get them next time");
                     input = new JObject ();
                 }
-                pitItems = getListVals (input);
+                pitItems = getListVals (input == null ? new JObject() : input);
                 scoutView.IsVisible = true;
                 sadNoPit.IsVisible = !scoutView.IsVisible;
             } else {
@@ -82,13 +99,14 @@ namespace NRGScoutingApp {
             var del = await DisplayAlert("Notice", "Do you want to delete all Pit Notes? Data CANNOT be recovered.", "Yes", "No");
             if (del)
             {
-                JObject s = JObject.Parse(Preferences.Get("matchEventsString", ""));
-                if (s.ContainsKey("PitNotes"))
+                JObject s = JObject.Parse(Preferences.Get (ConstantVars.APP_DATA_STORAGE, ""));
+                if (s.ContainsKey(eventName) && s[eventName].ToObject<JObject>().ContainsKey("PitNotes"))
                 {
-                    s.Remove("PitNotes");
+                    JObject temp = (JObject)s[eventName];
+                    temp.Remove("PitNotes");
                 }
-                Preferences.Set("matchEventsString", JsonConvert.SerializeObject(s));
-                setListView(Preferences.Get("matchEventsString", ""));
+                Preferences.Set(ConstantVars.APP_DATA_STORAGE, JsonConvert.SerializeObject(s));
+                setListView(Preferences.Get (ConstantVars.APP_DATA_STORAGE, ""));
             }
         }
     }

@@ -69,14 +69,14 @@ namespace NRGScoutingApp {
                     return ConstantVars.DROP_2_TEXT;
                 case (int) MatchFormat.ACTION.drop3:
                     return ConstantVars.DROP_3_TEXT;
-                case (int) MatchFormat.ACTION.drop4:
-                    return ConstantVars.DROP_4_TEXT;
+                //case (int) MatchFormat.ACTION.drop4:
+                //    return ConstantVars.DROP_4_TEXT;
                 case (int) MatchFormat.ACTION.dropNone:
                     return ConstantVars.DROP_NONE_TEXT;
                 case (int) MatchFormat.ACTION.pick1:
                     return ConstantVars.PICK_ITEM_1_TEXT;
-                case (int) MatchFormat.ACTION.pick2:
-                    return ConstantVars.PICK_ITEM_2_TEXT;
+                //case (int) MatchFormat.ACTION.pick2:
+                //    return ConstantVars.PICK_ITEM_2_TEXT;
                 case (int) MatchFormat.ACTION.startClimb:
                     return ConstantVars.START_CLIMB_TEXT;
             }
@@ -91,14 +91,14 @@ namespace NRGScoutingApp {
                     return ConstantVars.DROP_2_IMAGE;
                 case (int) MatchFormat.ACTION.drop3:
                     return ConstantVars.DROP_3_IMAGE;
-                case (int) MatchFormat.ACTION.drop4:
-                    return ConstantVars.DROP_4_IMAGE;
+                //case (int) MatchFormat.ACTION.drop4:
+                //    return ConstantVars.DROP_4_IMAGE;
                 case (int) MatchFormat.ACTION.dropNone:
                     return ConstantVars.DROP_NONE_IMAGE;
                 case (int) MatchFormat.ACTION.pick1:
                     return ConstantVars.PICK_ITEM_1_IMAGE;
-                case (int) MatchFormat.ACTION.pick2:
-                    return ConstantVars.PICK_ITEM_2_IMAGE;
+                //case (int) MatchFormat.ACTION.pick2:
+                //    return ConstantVars.PICK_ITEM_2_IMAGE;
                 case (int) MatchFormat.ACTION.startClimb:
                     return ConstantVars.START_CLIMB_IMAGE;
                 default:
@@ -137,7 +137,7 @@ namespace NRGScoutingApp {
         void removeAtIndex (int index) {
             NewMatchStart.events.RemoveAt (index);
             eventsList.RemoveAt (index);
-            CubeDroppedDialog.saveEvents ();
+            NewMatchStart.saveEvents ();
         }
 
     }

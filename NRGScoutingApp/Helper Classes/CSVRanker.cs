@@ -20,17 +20,14 @@ namespace NRGScoutingApp {
             {
                 total = ",,,";
             }
-            total += pickCalc ((int) MatchFormat.CHOOSE_RANK_TYPE.pick1) + "," + //Hatch
-                numCalc ((int) MatchFormat.CHOOSE_RANK_TYPE.pick1) + "," +
-                pickCalc ((int) MatchFormat.CHOOSE_RANK_TYPE.pick2) + "," + //Cargo
-                numCalc ((int) MatchFormat.CHOOSE_RANK_TYPE.pick2) + ",";
+            total += pickCalc((int)MatchFormat.CHOOSE_RANK_TYPE.pick1) + "," + //Hatch
+                numCalc((int)MatchFormat.CHOOSE_RANK_TYPE.pick1) + ",";
 
             total += climbCalc () + ",";
 
-            total += dropCalc ((int) MatchFormat.CHOOSE_RANK_TYPE.drop1) + "," +
-                dropCalc ((int) MatchFormat.CHOOSE_RANK_TYPE.drop2) + "," +
-                dropCalc ((int) MatchFormat.CHOOSE_RANK_TYPE.drop3) + "," +
-                dropCalc ((int) MatchFormat.CHOOSE_RANK_TYPE.drop4);
+            total += dropCalc((int)MatchFormat.CHOOSE_RANK_TYPE.drop1) + "," +
+                dropCalc((int)MatchFormat.CHOOSE_RANK_TYPE.drop2) + "," +
+                dropCalc((int)MatchFormat.CHOOSE_RANK_TYPE.drop3);
             return total;
         }
 

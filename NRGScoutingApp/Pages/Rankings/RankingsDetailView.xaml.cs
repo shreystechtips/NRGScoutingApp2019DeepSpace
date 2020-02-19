@@ -16,9 +16,10 @@ namespace NRGScoutingApp {
         public RankingsDetailView (String[] times) {
             InitializeComponent ();
             setScoreValues (times);
-            pitButton.IsVisible = Rankings.pitTeams.Contains (Rankings.teamSend);
-            String team = Rankings.teamSend.Split ('-', 2) [MatchFormat.teamNameOrNum].Trim ();
-            listView.ItemsSource = Matches.matchesList.Where (matchesList => matchesList.teamNameAndSide.ToLower ().Contains (team.ToLower ()));
+            string teamString = AdapterMethods.getTeamString(Rankings.teamSend);
+            pitButton.IsVisible = Rankings.pitTeams.Contains (teamString);
+            String team = Rankings.teamSend.ToString();
+            listView.ItemsSource = Matches.matchesList.Where (matchesList => matchesList.teamNameAndSide.ToLower ().Contains (team.ToLower () + " - "));
         }
 
         void setScoreValues (String[] times) {
@@ -47,18 +48,18 @@ namespace NRGScoutingApp {
                 }
                 Preferences.Set ("tempParams", JsonConvert.SerializeObject (parameters.ToObject<MatchFormat.EntryParams> ()));
                 NewMatchStart.events = MatchFormat.JSONEventsToObject (val);
-                CubeDroppedDialog.saveEvents ();
+                NewMatchStart.saveEvents ();
                 Preferences.Set ("timerValue", Convert.ToInt32 (val.Property ("timerValue").Value));
                 Preferences.Set ("teamStart", val.Property ("team").Value.ToString ());
                 Device.BeginInvokeOnMainThread (() => {
-                    Navigation.PushAsync (new MatchEntryEditTab () { Title = val.Property ("team").Value.ToString () });
+                    Navigation.PushAsync (new MatchEntryEditTab () { Title = AdapterMethods.getTeamString((int) val.Property ("team").Value) });
                 });
             });
         }
 
         async void pitClicked (object sender, System.EventArgs e) {
             Preferences.Set ("teamStart", Rankings.teamSend);
-            await Navigation.PushAsync (new PitEntry (true, Rankings.teamSend, false) { Title = Rankings.teamSend });
+            await Navigation.PushAsync (new PitEntry (true, Rankings.teamSend, false) { Title = AdapterMethods.getTeamString(Rankings.teamSend) });
         }
     }
 }

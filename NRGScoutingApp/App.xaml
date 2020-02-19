@@ -9,7 +9,7 @@
             
             <Color x:Key="TextPrimaryColor">#FFFFFF</Color>
             <Color x:Key="TextSecondaryColor">#B0FFFFFF</Color>
-            <Color x:Key="TextTernaryColor">#C8C8C8</Color>
+            <!--<Color x:Key="TextTernaryColor">#C8C8C8</Color>-->
           </ResourceDictionary>
         <ResourceDictionary x:Name="LightTheme">
             <Color x:Key="Primary">#d7401a</Color>
@@ -28,7 +28,7 @@
 
             <Color x:Key="TextPrimaryColor">#000000</Color>
             <Color x:Key="TextSecondaryColor">#80000000</Color>
-            <Color x:Key="TextTernaryColor">#C8C8C8</Color>
+            <!--<Color x:Key="TextTernaryColor">#C8C8C8</Color>-->
             <Style TargetType="NavigationPage">
                 <Setter Property="BarBackgroundColor" Value="{StaticResource Primary}"/>
                 <Setter Property="BarTextColor" Value="White"/>

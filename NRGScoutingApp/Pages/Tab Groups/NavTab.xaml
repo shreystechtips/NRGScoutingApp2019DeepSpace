@@ -9,4 +9,7 @@
     android:TabbedPage.BarBackgroundColor="{DynamicResource backgroundColor}"
     Title="NRG Scouting"
             BackgroundColor="{DynamicResource backgroundColor}">
+    <TabbedPage.ToolbarItems>
+        <ToolbarItem Text="Change Event" Order="Secondary" Clicked="changeEventClicked"/>
+    </TabbedPage.ToolbarItems>
 </TabbedPage>

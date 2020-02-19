@@ -12,6 +12,7 @@
             <ListView
                 BackgroundColor= "{DynamicResource backgroundColor}"
                 IsPullToRefreshEnabled="True"
+                IsRefreshing="False"
                 x:Name="MatchesList"
                 ItemTapped="Handle_ItemTapped"
                 CachingStrategy="RecycleElementAndDataTemplate">

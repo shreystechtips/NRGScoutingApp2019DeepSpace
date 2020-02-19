@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Photos;
 using Rg.Plugins.Popup.Services;
 using Xamarin.Essentials;
 using Xamarin.Forms;
@@ -28,8 +30,8 @@ namespace NRGScoutingApp {
 
         protected override void OnAppearing () {
             popNav = false;
-            if (!Preferences.ContainsKey ("matchEventsString")) {
-                Preferences.Set ("matchEventsString", "");
+            if (!Preferences.ContainsKey (ConstantVars.APP_DATA_STORAGE)) {
+                Preferences.Set (ConstantVars.APP_DATA_STORAGE, "");
                 Preferences.Set ("tempMatchEvents", "");
             }
             if (!Preferences.ContainsKey ("newAppear")) { } //DEBUG PURPOSES
@@ -63,9 +65,16 @@ namespace NRGScoutingApp {
         }
 
         async void newClicked (object sender, System.EventArgs e) {
-            popNav = false;
-            appRestore = false;
-            await Navigation.PushAsync (new MatchEntryStart (ConstantVars.TEAM_SELECTION_TYPES.match));
+            if (String.IsNullOrEmpty(Preferences.Get(ConstantVars.CURRENT_EVENT_NAME, "")))
+            {
+                await Navigation.PushAsync(new ChangeEventPage());
+            }
+            else
+            {
+                popNav = false;
+                appRestore = false;
+                await Navigation.PushAsync(new MatchEntryStart(ConstantVars.TEAM_SELECTION_TYPES.match));
+            }
         }
 
         private void SearchBar_OnTextChanged (object sender, TextChangedEventArgs e) {
@@ -85,15 +94,16 @@ namespace NRGScoutingApp {
                 Preferences.Set ("tempParams", "");
                 Preferences.Set ("tempMatchEvents", "");
                 Preferences.Set ("tempPitNotes", "");
+                Preferences.Set(ConstantVars.CURRENT_EVENT_NAME, "");
             } else if (!String.IsNullOrWhiteSpace (Preferences.Get ("tempMatchEvents", "")) || !String.IsNullOrWhiteSpace (Preferences.Get ("tempParams", ""))) //App.Current.Properties["appState"].ToString() == "1"
             {
                 appRestore = true;
                 NavigationPage.SetHasNavigationBar (this, false);
-                Navigation.PushAsync (new MatchEntryEditTab () { Title = Preferences.Get ("teamStart", "") });
+                Navigation.PushAsync (new MatchEntryEditTab () { Title = AdapterMethods.getTeamString(Preferences.Get ("teamStart", 0)) });
             } else if (!String.IsNullOrWhiteSpace (Preferences.Get ("tempPitNotes", ""))) {
                 appRestore = true;
                 NavigationPage.SetHasNavigationBar (this, false);
-                Navigation.PushAsync (new PitEntry (true, Preferences.Get ("teamStart", ""), true) { Title = Preferences.Get ("teamStart", "") });
+                Navigation.PushAsync (new PitEntry (true, Preferences.Get ("teamStart", 0), true) { Title = AdapterMethods.getTeamString(Preferences.Get("teamStart", 0)) });
             } else if (Preferences.Get ("appState", 0) == 0) {
                 appRestore = false;
                 Preferences.Set ("appState", 0);
@@ -103,8 +113,8 @@ namespace NRGScoutingApp {
                 Preferences.Set ("tempParams", "");
                 Preferences.Set ("tempPitNotes", "");
             }
-            if (!Preferences.ContainsKey ("matchEventsString")) {
-                Preferences.Set ("matchEventsString", "");
+            if (!Preferences.ContainsKey (ConstantVars.APP_DATA_STORAGE)) {
+                Preferences.Set (ConstantVars.APP_DATA_STORAGE, "");
                 Preferences.Set ("tempMatchEvents", "");
                 Preferences.Set ("tempPitNotes", "");
             }
@@ -131,21 +141,43 @@ namespace NRGScoutingApp {
             await DisplayAlert ("Hold it", "Make sure export to data first", "OK");
             var del = await DisplayAlert ("Notice", "Do you want to delete all matches? Data CANNOT be recovered.", "Yes", "No");
             if (del) {
-                JObject s = JObject.Parse(Preferences.Get("matchEventsString", "{}x "));
-                if (s.ContainsKey("Matches"))
+                JObject s = JObject.Parse(Preferences.Get (ConstantVars.APP_DATA_STORAGE, "[]"));
+                string eventName = Preferences.Get(ConstantVars.CURRENT_EVENT_NAME, "");
+                if (s.ContainsKey(eventName) && s[eventName].ToObject<JObject>().ContainsKey("Matches"))
                 {
-                    s.Remove("Matches");
+                    JObject temp = (JObject)s[eventName];
+                    temp.Remove("Matches");
                 }
-                Preferences.Set("matchEventsString", JsonConvert.SerializeObject(s));
+                Preferences.Set(ConstantVars.APP_DATA_STORAGE, JsonConvert.SerializeObject(s));
                 populateMatchesList ();
+            }
+        }
+
+        async void deleteAllClicked(object sender, System.EventArgs e)
+        {
+            await DisplayAlert("Hold it", "Make sure export to data first", "OK");
+            var del = await DisplayAlert("Notice", "Do you want to delete all matches? Data CANNOT be recovered.", "Yes", "No");
+            if (del)
+            {
+                Preferences.Set(ConstantVars.APP_DATA_STORAGE, "{}");
+                populateMatchesList();
             }
         }
 
         void populateMatchesList () {
             JObject x;
-            if (!String.IsNullOrWhiteSpace (Preferences.Get ("matchEventsString", ""))) {
+            string currentEvent = Preferences.Get(ConstantVars.CURRENT_EVENT_NAME, "");
+            if (!String.IsNullOrWhiteSpace (Preferences.Get (ConstantVars.APP_DATA_STORAGE, ""))) {
                 try {
-                    x = JObject.Parse (Preferences.Get ("matchEventsString", ""));
+                    x = (JObject) JObject.Parse (Preferences.Get (ConstantVars.APP_DATA_STORAGE, ""));
+                    if (x.ContainsKey(currentEvent))
+                    {
+                        x = (JObject) x[currentEvent];
+                    }
+                    else
+                    {
+                        x = new JObject();
+                    }
                 } catch {
                     Console.WriteLine ("Caught NullRepEx for populateMatchesList");
                     x = new JObject ();
@@ -157,7 +189,7 @@ namespace NRGScoutingApp {
                 matchesList = null;
                 listView.ItemsSource = null;
             } else {
-                JObject matchesJSON = JObject.Parse (Preferences.Get ("matchEventsString", ""));
+                JObject matchesJSON = (JObject) JObject.Parse (Preferences.Get (ConstantVars.APP_DATA_STORAGE, ""))[currentEvent];
                 JArray temp = (JArray) matchesJSON["Matches"];
                 //Will Contain all items for matches list
                 matchesList = new List<MatchesListFormat> ();
@@ -176,14 +208,14 @@ namespace NRGScoutingApp {
                         teamTemp = match["team"].ToString();
                     }
                     catch {}
-                    String teamIdentifier = "";
-                    try
-                    {
-                        teamIdentifier = teamTemp.Split("-", 2)[MatchFormat.teamNameOrNum].Trim();
-                    }
-                    catch {
-                        teamIdentifier = teamTemp;
-                    }
+                    String teamIdentifier = teamTemp;
+                    //try
+                    //{
+                    //    teamIdentifier = teamTemp.Split("-", 2)[MatchFormat.teamNameOrNum].Trim();
+                    //}
+                    //catch {
+                    //    teamIdentifier = teamTemp;
+                    //}
 
                     matchesList.Add (new MatchesListFormat {
                         matchNum = "Match " + match["matchNum"],

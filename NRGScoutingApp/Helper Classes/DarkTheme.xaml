@@ -9,5 +9,5 @@
             
             <Color x:Key="TextPrimaryColor">#FFFFFF</Color>
             <Color x:Key="TextSecondaryColor">#B0FFFFFF</Color>
-            <Color x:Key="TextTernaryColor">#C8C8C8</Color>
+            <Color x:Key="TextTernaryColor">#fdad13</Color>
 </ResourceDictionary>

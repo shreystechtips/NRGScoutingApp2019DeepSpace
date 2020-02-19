@@ -19,7 +19,7 @@ namespace NRGScoutingApp {
                 
                 try
                 {
-                    Teams.refreshTeams();
+                    DataDownload.refreshTeams();
                 }
                 catch (Exception ex)
                 {
@@ -37,7 +37,7 @@ namespace NRGScoutingApp {
         {
             if (App.teamsList.Count <= 0)
             {
-                Teams.populateTeamList(Preferences.Get(ConstantVars.TEAM_LIST_STORAGE, "[]"), App.teamsList);
+                DataDownload.populateTeamList(Preferences.Get(ConstantVars.TEAM_LIST_STORAGE, "[]"), App.teamsList);
             }
             setSimplifiedTeams(App.teamsList, teams);
             listView.ItemsSource = null;
@@ -58,21 +58,31 @@ namespace NRGScoutingApp {
 
         async void Handle_ItemTapped(object sender, Xamarin.Forms.ItemTappedEventArgs e) {
             teamName = e.Item.ToString();
-            Preferences.Set("teamStart", teamName);
-            await App.Current.SavePropertiesAsync();
-            switch (goToMatch) {
-                case ConstantVars.TEAM_SELECTION_TYPES.match:
-                    await Navigation.PushAsync(new MatchEntryEditTab() { Title = teamName });
-                    Navigation.RemovePage(this);
-                    break;
-                case ConstantVars.TEAM_SELECTION_TYPES.pit:
-                    await Navigation.PushAsync(new PitEntry(true, teamName, true) { Title = teamName });
-                    Navigation.RemovePage(this);
-                    break;
-                case ConstantVars.TEAM_SELECTION_TYPES.teamSelection:
-                    await Navigation.PopAsync();
-                    break;
+            int teamnum;
+            try
+            {
+                teamnum = AdapterMethods.getTeamInt(teamName, App.teamsList);
+                Preferences.Set("teamStart", teamnum);
+                await App.Current.SavePropertiesAsync();
+                switch (goToMatch)
+                {
+                    case ConstantVars.TEAM_SELECTION_TYPES.match:
+                        await Navigation.PushAsync(new MatchEntryEditTab() { Title = teamName });
+                        Navigation.RemovePage(this);
+                        break;
+                    case ConstantVars.TEAM_SELECTION_TYPES.pit:
+                        await Navigation.PushAsync(new PitEntry(true, teamnum, true) { Title = teamName });
+                        Navigation.RemovePage(this);
+                        break;
+                    case ConstantVars.TEAM_SELECTION_TYPES.teamSelection:
+                        await Navigation.PopAsync();
+                        break;
 
+                }
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Failed to get team number from the list", "", "OK");
             }
 
         }

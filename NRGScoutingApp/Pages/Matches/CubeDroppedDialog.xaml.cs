@@ -68,10 +68,6 @@ namespace NRGScoutingApp {
             }
 
         }
-        public static void saveEvents () {
-            Preferences.Set ("tempMatchEvents", JsonConvert.SerializeObject (MatchFormat.eventsListToJSONEvents (NewMatchStart.events)));
-            MatchEvents.update = true;
-        }
         private void setDropTime () {
             Preferences.Set ("lastItemDropped", (int) NewMatchStart.droppedTime);
         }

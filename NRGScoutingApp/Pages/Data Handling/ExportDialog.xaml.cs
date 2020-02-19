@@ -135,7 +135,7 @@ namespace NRGScoutingApp {
 
         private async Task PitText () {
             await Task.Run (async () => {
-                Ranker rank = new Ranker (Preferences.Get ("matchEventsString", ""));
+                Ranker rank = new Ranker (Preferences.Get (ConstantVars.APP_DATA_STORAGE, ""));
                 csvString = "Team";
                 foreach (String s in ConstantVars.QUESTIONS) {
                     csvString += "," + s;
@@ -143,9 +143,9 @@ namespace NRGScoutingApp {
                 csvString += "\n";
                 JObject tempJSON;
                 JArray pits;
-                if (!String.IsNullOrWhiteSpace (Preferences.Get ("matchEventsString", ""))) {
+                if (!String.IsNullOrWhiteSpace (App.getCompJson(Preferences.Get (ConstantVars.APP_DATA_STORAGE, ""),Preferences.Get(ConstantVars.CURRENT_EVENT_NAME, "")))) {
                     try {
-                        tempJSON = JObject.Parse (Preferences.Get ("matchEventsString", ""));
+                        tempJSON = JObject.Parse (App.getCompJson(Preferences.Get (ConstantVars.APP_DATA_STORAGE, ""),Preferences.Get(ConstantVars.CURRENT_EVENT_NAME, "")));
                     } catch (NullReferenceException) {
                         System.Diagnostics.Debug.WriteLine ("Caught NullRepEx for ranker JObject");
                         tempJSON = new JObject ();
@@ -217,7 +217,7 @@ namespace NRGScoutingApp {
         void setExportEntries () {
             JObject x;
             try {
-                x = (JObject) JsonConvert.DeserializeObject (Preferences.Get ("matchEventsString", ""));
+                x = (JObject) JsonConvert.DeserializeObject (Preferences.Get (ConstantVars.APP_DATA_STORAGE, ""));
             } catch (JsonException) {
                 x = new JObject ();
             }
@@ -226,7 +226,7 @@ namespace NRGScoutingApp {
             }
             if (x.Count > 0) {
                 String exportEntries = JsonConvert.SerializeObject (
-                    JObject.Parse (Preferences.Get ("matchEventsString", "")), Formatting.None);
+                    JObject.Parse (Preferences.Get (ConstantVars.APP_DATA_STORAGE, "")), Formatting.None);
                 exportText = exportEntries;
             } else {
                 copyButton.IsEnabled = false;
@@ -238,7 +238,7 @@ namespace NRGScoutingApp {
 
         async public void initCSV () {
             await Task.Run (async () => {
-                Ranker rank = new Ranker (Preferences.Get ("matchEventsString", ""));
+                Ranker rank = new Ranker (Preferences.Get (ConstantVars.APP_DATA_STORAGE, ""));
                 csvString = "Team,Match Num,Side,Avg. Hatch,Num Hatch,Avg. Cargo,Num Cargo,Climb,Lvl1,Lvl2,Lvl3,Cargoship\n";
                 JArray matches = rank.getDataAsJArray ();
                 CSVRanker singleMatch = new CSVRanker ();

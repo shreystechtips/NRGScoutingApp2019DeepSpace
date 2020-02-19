@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Xamarin.Essentials;
 using Xamarin.Forms;
@@ -13,17 +15,18 @@ namespace NRGScoutingApp {
     public partial class Rankings : INotifyPropertyChanged {
         public Rankings () {
             InitializeComponent ();
+            eventName = Preferences.Get(ConstantVars.CURRENT_EVENT_NAME, "");
             rankPicker.SelectedIndex = 0;
         }
 
-        public static string teamSend;
+        public static int teamSend;
         private List<RankStruct> rankList;
         public static List<string> pitTeams;
-
+        string eventName =  Preferences.Get(ConstantVars.CURRENT_EVENT_NAME, "");
         MatchFormat.CHOOSE_RANK_TYPE rankChoice;
 
         //Initializes the ranking object
-        Ranker mainRank = new Ranker (Preferences.Get ("matchEventsString", ""));
+        Ranker mainRank = new Ranker (Preferences.Get (ConstantVars.APP_DATA_STORAGE, ""));
 
         //void settingsClicked (object sender, System.EventArgs e) {
         //    Navigation.PushAsync (new Settings ());
@@ -37,9 +40,9 @@ namespace NRGScoutingApp {
                 case 1:
                     rankChoice = MatchFormat.CHOOSE_RANK_TYPE.pick1; //Hatch
                     break;
-                case 2:
-                    rankChoice = MatchFormat.CHOOSE_RANK_TYPE.pick2; //Cargo
-                    break;
+                //case 2:
+                //    rankChoice = MatchFormat.CHOOSE_RANK_TYPE.pick2; //Cargo
+                //    break;
                 case 3:
                     rankChoice = MatchFormat.CHOOSE_RANK_TYPE.climb; //Climb
                     break;
@@ -63,6 +66,7 @@ namespace NRGScoutingApp {
         }
 
         protected override void OnAppearing () {
+            eventName = Preferences.Get(ConstantVars.CURRENT_EVENT_NAME, "");
             updateEvents ();
             setPitTeams ();
 
@@ -71,23 +75,33 @@ namespace NRGScoutingApp {
         //Updates events with given enum
         private void updateEvents () {
             //Updates string data from matches
-            mainRank.setData (Preferences.Get ("matchEventsString", ""));
+            JObject temp = JObject.Parse(Preferences.Get(ConstantVars.APP_DATA_STORAGE, "{}"));
+            Debug.WriteLine(temp);
+            if (temp.ContainsKey(eventName))
+            {
+                temp = (JObject)temp[eventName];
+            }
+            else
+            {
+                temp = new JObject();
+            }
+            mainRank.setData (JsonConvert.SerializeObject(temp));
             //Gets all data and sets it into ascending order based on each team's average time
-            Dictionary<string, double> x = mainRank.getRank (rankChoice);
-            Dictionary<string, double> y = new Dictionary<string, double> ();
+            Dictionary<int, double> x = mainRank.getRank (rankChoice);
+            Dictionary<int, double> y = new Dictionary<int, double>(x);
             List<RankStruct> ranks = new List<RankStruct> ();
             if (!(rankPicker.SelectedIndex == 7)) {
                 y = (from pair in x orderby pair.Value descending select pair).ToDictionary (pair => pair.Key, pair => pair.Value);
             } else {
                 try {
-                    y = (from pair in x orderby Convert.ToInt32 (pair.Key.Split (" - ", 2) [0]) ascending select pair).ToDictionary (pair => pair.Key, pair => pair.Value);
+                    y = (from pair in x orderby pair.Key ascending select pair).ToDictionary (pair => pair.Key, pair => pair.Value);
                 } catch {
-                    y = new Dictionary<string, double> ();
+                    y = new Dictionary<int, double> ();
                 }
             }
 
             foreach (var s in y) {
-                ranks.Add (new RankStruct { Key = s.Key, Value = s.Value, color = getTeamColor (s.Key) });
+                ranks.Add (new RankStruct { Key = AdapterMethods.getTeamString(s.Key), Value = s.Value, color = getTeamColor (s.Key) });
             }
             listView.ItemsSource = ranks;
             rankList = ranks;
@@ -100,7 +114,7 @@ namespace NRGScoutingApp {
             public Color color { get; set; }
         }
 
-        private Color getTeamColor (String team) {
+        private Color getTeamColor (int team) {
             return mainRank.getColors () [team];
         }
 
@@ -118,7 +132,7 @@ namespace NRGScoutingApp {
                 listView.ItemsSource = rankList;
             } else {
                 listView.ItemsSource = rankList.Where (rankList => rankList.Key.ToLower ().Contains (e.NewTextValue.ToLower ()) ||
-                    rankList.Key.ToLower ().Contains (e.NewTextValue.ToLower ()) ||
+                    rankList.Key.ToLower().Contains (e.NewTextValue.ToLower ()) ||
                     getColorString (rankList.color).ToLower ().Contains (e.NewTextValue.ToLower ()));
             }
         }
@@ -135,19 +149,22 @@ namespace NRGScoutingApp {
 
         async void teamClicked (object sender, Xamarin.Forms.ItemTappedEventArgs e) {
             var x = (listView.ItemsSource as IEnumerable<RankStruct>).ToList ();
-            String item = x.Find (y => y.Equals (e.Item)).Key;
-            teamSend = item;
-            await Navigation.PushAsync (new RankingsDetailView (mainRank.returnTeamTimes (item)) { Title = item });
+            int teamnum = AdapterMethods.getTeamInt(((RankStruct)e.Item).Key, App.teamsList);
+            //String item = x.Find (y => y.Equals (teamnum)).Key;
+            teamSend = teamnum;
+            Debug.WriteLine("befrore send" + ((RankStruct)e.Item).Key);
+            await Navigation.PushAsync (new RankingsDetailView (mainRank.returnTeamTimes (teamnum)) { Title = ((RankStruct)e.Item).Key });
         }
 
         private void setPitTeams () {
             JObject input;
             try {
-                input = JObject.Parse (Preferences.Get ("matchEventsString", ""));
+                input = JObject.Parse (Preferences.Get (ConstantVars.APP_DATA_STORAGE, ""));
+                input = (JObject)input[eventName];
             } catch (Newtonsoft.Json.JsonException) {
                 input = new JObject ();
             }
-            pitTeams = PitScouting.getListVals (input);
+            pitTeams = PitScouting.getListVals (input ==null ? new JObject() : input);
         }
 
         void allianceClicked (object sender, System.EventArgs e) {

@@ -11,5 +11,9 @@ namespace NRGScoutingApp {
             Children.Add (new PitScouting ());
             InitializeComponent ();
         }
+        void changeEventClicked(object sender, System.EventArgs e)
+        {
+            Navigation.PushAsync(new ChangeEventPage());
+        }
     }
 }

@@ -15,12 +15,12 @@ namespace NRGScoutingApp {
         public static Boolean updateTeam = false;
 
         protected override void OnAppearing () {
-            teamName = Preferences.Get ("teamStart", "");
+            teamName = Preferences.Get ("teamStart", 0);
         }
 
-        public String teamName = Preferences.Get ("teamStart", "");
+        public int teamName = Preferences.Get ("teamStart", 0);
         public static MatchFormat.EntryParams Entry = new MatchFormat.EntryParams {
-            team = Preferences.Get ("teamStart", ""),
+            team = Preferences.Get("teamStart", 0),
             matchNum = 0,
             side = 0,
 
@@ -76,10 +76,11 @@ namespace NRGScoutingApp {
                     parameters.Merge (events);
 
                     //Adds or creates new JObject to start all data in app cache
-                    JObject data = initializeEventsObject ();
+                    JObject dataMain = initializeEventsObject ();
+                    JObject data = (JObject)dataMain[Preferences.Get(ConstantVars.CURRENT_EVENT_NAME,"")];
                     if (data.Count <= 0 || !data.ContainsKey ("Matches")) {
                         data.Add (new JProperty ("Matches", new JArray ()));
-                        pushBackToHome (data, new JArray (), parameters);
+                        pushBackToHome (dataMain, data, new JArray (), parameters);
                     } else {
                         JArray temp = (JArray) data["Matches"];
                         if (temp.ToList ().Exists (x => x["matchNum"].Equals (parameters["matchNum"]) && x["side"].Equals (parameters["side"]))) {
@@ -89,7 +90,7 @@ namespace NRGScoutingApp {
                                     bool remove = await DisplayAlert ("Error", "Overwrite Old Match with New Data?", "No", "Yes");
                                     if (!remove) {
                                         temp.Remove (item);
-                                        pushBackToHome (data, temp, parameters);
+                                        pushBackToHome (dataMain, data, temp, parameters);
                                     } else {
                                         saveButton.IsEnabled = true;
                                         return;
@@ -97,10 +98,10 @@ namespace NRGScoutingApp {
                                 });
                             } else {
                                 temp.Remove (item);
-                                pushBackToHome (data, temp, parameters);
+                                pushBackToHome (dataMain,data, temp, parameters);
                             }
                         } else {
-                            pushBackToHome (data, temp, parameters);
+                            pushBackToHome (dataMain, data, temp, parameters);
                         }
                     }
                 });
@@ -202,10 +203,16 @@ namespace NRGScoutingApp {
         //Returns Jobject based on wheter match events string is empty or not
         public static JObject initializeEventsObject () {
             JObject data;
-            if (!String.IsNullOrWhiteSpace (Preferences.Get ("matchEventsString", ""))) {
-                data = JObject.Parse (Preferences.Get ("matchEventsString", ""));
+            string eventName = Preferences.Get(ConstantVars.CURRENT_EVENT_NAME, "");
+            if (!String.IsNullOrWhiteSpace (Preferences.Get (ConstantVars.APP_DATA_STORAGE, ""))) {
+                data = JObject.Parse (Preferences.Get (ConstantVars.APP_DATA_STORAGE, ""));
+                if (!data.ContainsKey(eventName))
+                {
+                    data.Add(eventName,new JObject());
+                }
             } else {
                 data = new JObject ();
+                data.Add(eventName, new JObject());              
             }
             return data;
         }
@@ -277,10 +284,10 @@ namespace NRGScoutingApp {
         }
 
         //Takes all objects and adds items while returning the main page
-        void pushBackToHome (JObject data, JArray temp, JObject parameters) {
+        void pushBackToHome (JObject mainData, JObject data, JArray temp, JObject parameters) {
             temp.Add (new JObject (parameters));
             data["Matches"] = temp;
-            Preferences.Set ("matchEventsString", JsonConvert.SerializeObject (data));
+            Preferences.Set (ConstantVars.APP_DATA_STORAGE, JsonConvert.SerializeObject (mainData));
             clearMatchItems ();
             Device.BeginInvokeOnMainThread (() => {
                 try {
@@ -343,7 +350,7 @@ namespace NRGScoutingApp {
                 errors += "\n- Give Climb Options";
                 toPrint = true;
             }
-            if (String.IsNullOrWhiteSpace(Entry.team))
+            if (Entry.team <= 0)
             {
                 errors+= "\n- Select Team \"Change Team\"";
                 toPrint = true;

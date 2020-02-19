@@ -50,7 +50,7 @@ namespace NRGScoutingApp {
                         }
                         await addPitItemsChecker (data, importJSON);
                     }
-                    Preferences.Set ("matchEventsString", JsonConvert.SerializeObject (data));
+                    Preferences.Set (ConstantVars.APP_DATA_STORAGE, JsonConvert.SerializeObject (data));
                     await PopupNavigation.Instance.PopAsync (true);
                 } else {
                     await DisplayAlert ("Alert", "Error in Data", "OK");

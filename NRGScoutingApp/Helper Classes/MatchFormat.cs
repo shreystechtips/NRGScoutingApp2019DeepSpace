@@ -9,7 +9,7 @@ namespace NRGScoutingApp {
     public class MatchFormat {
         //Object to store all params
         public class EntryParams {
-            public String team { get; set; }
+            public int team { get; set; }
             public int matchNum { get; set; }
             public int side { get; set; }
 
@@ -38,14 +38,12 @@ namespace NRGScoutingApp {
         }
 
         public enum ACTION {
-            dropNone, //Drop None
-            drop1, //Rocket lvl 1
-            drop2, //Rocket lvl 2
-            drop3, //Rocket lvl 3
-            drop4, //Cargo Ship
-            pick1, //Picked Hatch Panel
-            pick2, //Picked Cargo
-            startClimb //Start Climb
+            dropNone = 0, //Drop None
+            drop1 = 1, //Low
+            drop2 = 2, //Hexagon
+            drop3 = 3, //Inside Hexagon
+            pick1 = 4, //Picked Ball
+            startClimb = 5 //Start Climb
         }
 
         public enum CHOOSE_RANK_TYPE {
@@ -53,9 +51,7 @@ namespace NRGScoutingApp {
             drop1, //Lvl1
             drop2, //Lvl2
             drop3, //Lvl3
-            drop4, //Ship
             pick1, //Hatch
-            pick2, //Cargo
             climb //Climb
         }
 
@@ -72,6 +68,13 @@ namespace NRGScoutingApp {
         {
             public int time { get; set; }
             public int type { get; set; }
+            public int num { get;set; }
+
+            override
+            public string ToString()
+            {
+                return "Time:" + time + "Type:" + type + "num" + num;
+            }
         }
 
         public static List<Data> JSONEventsToObject (JObject val) {

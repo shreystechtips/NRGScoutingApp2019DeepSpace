@@ -12,13 +12,17 @@ namespace NRGScoutingApp {
          */
 
         public static readonly string SCOUTING_API_NAME = "NRG_API_KEY";
-        public static readonly string SCOUTING_API_KEY = "API_KEY   ";
         public static readonly string SCOUTING_API_SITE = "http://api.nrg948.com";
         //https://nrg-scouting-api.herokuapp.com
         public static readonly int APP_YEAR = 2020;
         public static readonly String TEAM_LIST_STORAGE = "TeamsList";
+        public static readonly String EVENT_LIST_STORAGE = "EventsList";
+        public static readonly String CURRENT_EVENT_NAME = "CurrentEvent";
+
+        public static readonly String APP_DATA_STORAGE = "AllData";
 
 
+        public static readonly int CYCLE_ADD_THRESHOLD = 5000; // # of milliseconds between last (same) event to add to the last event (not make a new one)
         public static readonly String DROP_1_DIALOG_TEXT = "Low";
         public static readonly String DROP_2_DIALOG_TEXT = "Medium";
         public static readonly String DROP_3_DIALOG_TEXT = "High";

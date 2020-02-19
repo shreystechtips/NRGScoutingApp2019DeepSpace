@@ -14,21 +14,23 @@ namespace NRGScoutingApp {
         protected override bool OnBackButtonPressed () {
             return true;
         }
+        string eventName = Preferences.Get(ConstantVars.CURRENT_EVENT_NAME, "");
 
         protected override void OnAppearing () {
-            if (!teamName.Equals (Preferences.Get ("teamStart", ""))) {
-                newName = Preferences.Get ("teamStart", "rip");
-                this.Title = newName;
+            if (!teamName.Equals (Preferences.Get ("teamStart", 0))) {
+                newName = Preferences.Get ("teamStart", 0);
+                //this.Title = AdapterMethods.getTeamString(newName);
             }
+            eventName = Preferences.Get(ConstantVars.CURRENT_EVENT_NAME, "");
         }
 
         private Editor[] inputs = new Editor[ConstantVars.QUESTIONS.Length];
         private Label[] questions = new Label[ConstantVars.QUESTIONS.Length];
-        String teamName;
-        String newName;
+        int teamName;
+        int newName;
 
         //The boolean will hide the delete button if the entry is new
-        public PitEntry (bool newCreation, String teamName, bool teamChange) {
+        public PitEntry (bool newCreation, int teamName, bool teamChange) {
             this.teamName = teamName;
             newName = teamName;
             NavigationPage.SetHasBackButton (this, false);
@@ -79,17 +81,22 @@ namespace NRGScoutingApp {
         async void deleteClicked (object sender, System.EventArgs e) {
             bool text = await DisplayAlert ("Are you sure you want to delete??", "Data CANNOT be recovered", "No", "Yes");
             if (!text) {
-                JObject data = JObject.Parse (Preferences.Get ("matchEventsString", ""));
-                JArray pitNotes = (JArray) data["PitNotes"];
-                var delItem = pitNotes.ToList ().Find (x => x["team"].ToString ().Equals (Preferences.Get ("teamStart", "")));
+                JObject data = JObject.Parse (Preferences.Get (ConstantVars.APP_DATA_STORAGE, ""));
+                JArray pitNotes = (JArray) data[eventName]["PitNotes"];
+                Debug.WriteLine("sd" + Preferences.Get("teamStart", 0));
+                foreach (var s in pitNotes.ToList())
+                {
+                    Debug.WriteLine(s);
+                }
+                var delItem = pitNotes.ToList ().Find (x => (int)x["team"] == (Preferences.Get ("teamStart", 0)));
                 pitNotes.Remove (delItem);
                 if (pitNotes.Count <= 0) {
                     data.Remove ("PitNotes");
                 }
                 if (data.Count <= 0) {
-                    Preferences.Set ("matchEventsString", "");
+                    Preferences.Set (ConstantVars.APP_DATA_STORAGE, "");
                 }
-                Preferences.Set ("matchEventsString", JsonConvert.SerializeObject (data));
+                Preferences.Set (ConstantVars.APP_DATA_STORAGE, JsonConvert.SerializeObject (data));
                 try {
                     await Navigation.PopAsync (true);
                 } catch (System.NullReferenceException) { }
@@ -128,12 +135,12 @@ namespace NRGScoutingApp {
         void saveClicked (object sender, System.EventArgs e) {
             //Disables save button so app doesn't crash when user taps many times
             saveButton.IsEnabled = false;
-            vals[vals.Length - 1] = newName;
-            Dictionary<String, String> s = new Dictionary<String, String> ();
+            vals[vals.Length - 1] = newName.ToString();
+            Dictionary<String, object> s = new Dictionary<String, object> ();
             for (int i = 0; i < vals.Length - 1; i++) {
                 s.Add ("q" + i, vals[i]);
             }
-            s.Add ("team", vals[vals.Length - 1]);
+            s.Add ("team", newName);
             JObject notes = JObject.FromObject (s);
             if (isAllEmpty (notes)) {
                 try {
@@ -142,14 +149,15 @@ namespace NRGScoutingApp {
                 clearMatchItems ();
             } else {
                 //Adds or creates new JObject to start all data in app cache
-                JObject data = MatchParameters.initializeEventsObject ();
+                JObject dataMain = MatchParameters.initializeEventsObject ();
+                JObject data = (JObject)dataMain[Preferences.Get(ConstantVars.CURRENT_EVENT_NAME, "")];
                 if (!data.ContainsKey ("PitNotes")) {
                     data.Add (new JProperty ("PitNotes", new JArray ()));
-                    pushBackToHome (data, new JArray (), notes);
+                    pushBackToHome (dataMain, data, new JArray (), notes);
                 } else {
                     JArray temp = (JArray) data["PitNotes"];
                     if (temp.ToList ().Exists (x => x["team"].Equals (notes["team"]))) {
-                        var item = temp.ToList ().Find (x => x["team"].Equals (notes["team"]));
+                        var item = temp.ToList ().Find (x => (int)x["team"] == (int)notes["team"]);
                         temp.Remove (item);
                         for (int i = 0; i < ConstantVars.QUESTIONS.Length; i++) {
                             try {
@@ -157,20 +165,20 @@ namespace NRGScoutingApp {
                             } catch { }
                         }
                     }
-                    pushBackToHome (data, temp, notes);
+                    pushBackToHome (dataMain, data, temp, notes);
                 }
             }
         }
 
         //calls all final methods to return to home as it updates all the data
-        async void pushBackToHome (JObject data, JArray temp, JObject parameters) {
+        async void pushBackToHome (JObject dataMain, JObject data, JArray temp, JObject parameters) {
             temp.Add (new JObject (parameters));
             if (deleteButton.IsVisible && teamName != newName) {
-                var delItem = data["PitNotes"].ToList ().Find (x => x["team"].ToString ().Equals (teamName));
+                var delItem = data["PitNotes"].ToList ().Find (x => (int)x["team"] == (teamName));
                 temp.Remove (delItem);
             }
             data["PitNotes"] = temp;
-            Preferences.Set ("matchEventsString", JsonConvert.SerializeObject (data));
+            Preferences.Set (ConstantVars.APP_DATA_STORAGE, JsonConvert.SerializeObject (dataMain));
             try {
                 await Navigation.PopAsync (true);
             } catch (System.NullReferenceException) { }
@@ -195,7 +203,7 @@ namespace NRGScoutingApp {
 
         //Populates and checks in case of app crash
         void cacheCheck () {
-            String team = Preferences.Get ("teamStart", "oof");
+            int team = Preferences.Get ("teamStart", -1);
             Dictionary<String, String> temp = new Dictionary<string, string> ();
             String tempNotes = Preferences.Get ("tempPitNotes", "");
             if (!String.IsNullOrWhiteSpace (tempNotes)) {
@@ -209,18 +217,22 @@ namespace NRGScoutingApp {
 
             if (temp.Count == 0) {
                 JObject mainObject = new JObject ();
-                if (!String.IsNullOrWhiteSpace (Preferences.Get ("matchEventsString", ""))) {
-                    mainObject = JObject.Parse (Preferences.Get ("matchEventsString", ""));
+                if (!String.IsNullOrWhiteSpace (Preferences.Get (ConstantVars.APP_DATA_STORAGE, ""))) {
+                    mainObject = JObject.Parse (Preferences.Get (ConstantVars.APP_DATA_STORAGE, ""));
                 }
-                JArray scoutArray = new JArray ();
-                if (mainObject.ContainsKey ("PitNotes")) {
-                    scoutArray = (JArray) mainObject["PitNotes"];
+                JArray scoutArray = new JArray();
+                if (mainObject.ContainsKey(eventName) && mainObject[eventName]["PitNotes"] != null) {
+                    scoutArray = (JArray) ((JObject) mainObject[eventName])["PitNotes"];
                 } else {
                     scoutArray = new JArray ();
                 }
+                Debug.WriteLine(scoutArray);
                 try {
-                    if (scoutArray.Count > 0 && scoutArray.ToList ().Exists (x => x["team"].ToString ().Equals (team))) {
-                        var final = scoutArray.ToList ().Find (x => x["team"].ToString ().Equals (team));
+                    Debug.WriteLine(scoutArray.Count);
+                    Debug.WriteLine(scoutArray.ToList().Exists(x => (int)x["team"] == (team)));
+                    if (scoutArray.Count > 0 && scoutArray.ToList().Exists(x => (int)x["team"] == (team))) {
+                        Debug.WriteLine("yret");
+                        var final = scoutArray.ToList ().Find (x => (int)x["team"] == (team));
                         for (int i = 0; i < inputs.Length; i++) {
                             try {
                                 inputs[i].Text = (final["q" + i].ToString ());

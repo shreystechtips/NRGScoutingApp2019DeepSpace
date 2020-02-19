@@ -9,25 +9,17 @@
     <Import_RootNamespace>NRGScoutingApp</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Models\Item.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Services\CloudDataStore.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Services\IDataStore.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Services\MockDataStore.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)Helper Classes\ConstantVars.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper Classes\Ranker.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Helper Classes\TeamsNames.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper Classes\MatchFormat.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Pages\Main Landing\Matches.xaml.cs">
       <DependentUpon>Matches.xaml</DependentUpon>
     </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)Pages\Main Landing\Rankings.xaml.cs">
       <DependentUpon>Rankings.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="$(MSBuildThisFileDirectory)Pages\Matches\CubeDroppedDialog.xaml.cs">
-      <DependentUpon>CubeDroppedDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)Pages\Matches\MatchEntryStart.xaml.cs">
       <DependentUpon>MatchEntryStart.xaml</DependentUpon>
@@ -66,13 +58,18 @@
       <DependentUpon>RankingsDetailView.xaml</DependentUpon>
     </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)Helper Classes\CSVRanker.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Helper Classes\Teams.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helper Classes\DataDownload.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helper Classes\DarkTheme.xaml.cs">
       <DependentUpon>DarkTheme.xaml</DependentUpon>
     </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)Helper Classes\LightTheme.xaml.cs">
       <DependentUpon>LightTheme.xaml</DependentUpon>
     </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Helper Classes\HideAPIKey.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Pages\Data Handling\ChangeEventPage.xaml.cs">
+      <DependentUpon>ChangeEventPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)Helper Classes\AdapterMethods.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)App.xaml" />
@@ -81,10 +78,6 @@
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Pages\Main Landing\Rankings.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
-    </EmbeddedResource>
-    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Pages\Matches\CubeDroppedDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
@@ -144,6 +137,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Pages\Data Handling\ChangeEventPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)Pages\BlueAllianceMatches.xaml">
@@ -152,6 +149,13 @@
     </None>
     <None Include="$(MSBuildThisFileDirectory)Pages\BlueAllianceMatches.xaml.cs">
       <DependentUpon>BlueAllianceMatches.xaml</DependentUpon>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)Pages\Matches\CubeDroppedDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)Pages\Matches\CubeDroppedDialog.xaml.cs">
+      <DependentUpon>CubeDroppedDialog.xaml</DependentUpon>
     </None>
   </ItemGroup>
   <ItemGroup>

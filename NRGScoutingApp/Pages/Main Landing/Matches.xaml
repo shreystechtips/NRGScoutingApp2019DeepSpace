@@ -17,6 +17,8 @@
             Clicked="exportClicked"/>
         <ToolbarItem Icon="ic_clear_data.png"
             Clicked="deleteClicked"/>
+        <ToolbarItem Icon="ic_clear_data.png"
+            Clicked="deleteAllClicked" Order="Secondary" />
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <Grid HorizontalOptions="CenterAndExpand"
@@ -41,11 +43,11 @@
                     Placeholder="Match Number"
                     TextChanged="SearchBar_OnTextChanged"/>
                 <ListView x:Name="listView"
-                    Margin="0,0,0,0"
+                    Margin="10,0"
                     ItemTapped="Handle_ItemTapped"
                     HasUnevenRows="true"
                     Footer=""
-                          BackgroundColor="{DynamicResource backgroundColor}">
+                    BackgroundColor="{DynamicResource backgroundColor}">
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <ViewCell>
@@ -56,13 +58,11 @@
                                     <Label Text="{Binding matchNum}"
                                            TextColor="{DynamicResource TextPrimaryColor}"
                                         x:Name="key"
-                                        HorizontalTextAlignment="Start"
-                                        Margin="0"/>
+                                        HorizontalTextAlignment="Start"/>
                                     <Label Text="{Binding teamNameAndSide}"
                                            TextColor="{DynamicResource TextPrimaryColor}"
                                         x:Name="value"
-                                        HorizontalTextAlignment="Start"
-                                        Margin="0"/>
+                                        HorizontalTextAlignment="Start"/>
                                 </StackLayout>
                             </ViewCell>
                         </DataTemplate>
