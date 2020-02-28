@@ -3,13 +3,16 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="NRGScoutingApp.NavTab"
     xmlns:android="clr-namespace:Xamarin.Forms.PlatformConfiguration.AndroidSpecific;assembly=Xamarin.Forms.Core"
-    android:TabbedPage.ToolbarPlacement="Bottom"
-    android:TabbedPage.BarItemColor="{DynamicResource TabAccentColor}"
-    android:TabbedPage.BarSelectedItemColor="{DynamicResource TabMainColor}"
-    android:TabbedPage.BarBackgroundColor="{DynamicResource backgroundColor}"
+            BarBackgroundColor="{DynamicResource backgroundColor}"
+            SelectedTabColor="{DynamicResource TabMainColor}"
+            BarTextColor="{DynamicResource TabAccentColor}"
     Title="NRG Scouting"
             BackgroundColor="{DynamicResource backgroundColor}">
     <TabbedPage.ToolbarItems>
         <ToolbarItem Text="Change Event" Order="Secondary" Clicked="changeEventClicked"/>
     </TabbedPage.ToolbarItems>
 </TabbedPage>
+    <!--android:TabbedPage.ToolbarPlacement="Bottom"
+    android:TabbedPage.BarItemColor="{DynamicResource TabAccentColor}"
+    android:TabbedPage.BarSelectedItemColor="{DynamicResource TabMainColor}"
+    android:TabbedPage.BarBackgroundColor="{DynamicResource backgroundColor}"-->

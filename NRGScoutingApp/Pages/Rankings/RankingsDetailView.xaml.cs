@@ -50,7 +50,7 @@ namespace NRGScoutingApp {
                 NewMatchStart.events = MatchFormat.JSONEventsToObject (val);
                 NewMatchStart.saveEvents ();
                 Preferences.Set ("timerValue", Convert.ToInt32 (val.Property ("timerValue").Value));
-                Preferences.Set ("teamStart", val.Property ("team").Value.ToString ());
+                Preferences.Set ("teamStart", (int)val.Property ("team"));
                 Device.BeginInvokeOnMainThread (() => {
                     Navigation.PushAsync (new MatchEntryEditTab () { Title = AdapterMethods.getTeamString((int) val.Property ("team").Value) });
                 });

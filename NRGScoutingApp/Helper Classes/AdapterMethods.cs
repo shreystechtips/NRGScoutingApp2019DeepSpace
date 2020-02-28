@@ -20,18 +20,30 @@ namespace NRGScoutingApp
             return teamnum.ToString();
         }
 
+        public static string getEventName(string eventKey)
+        {
+            try
+            {
+                return (String)App.eventsList[eventKey];
+            }
+            catch
+            {
+                return eventKey;
+            }
+        }
 
         public static int getTeamInt(string input, Dictionary<int, string> teams)
         {
             Debug.WriteLine(input);
             try
             {
-                var value = input.Split(" - ");
-                return Convert.ToInt32(value[0]);
+                var value = input.Split('-');
+                return Convert.ToInt32(value[0].Trim());
             }
             catch (Exception ex)
             {
-                throw new Exception("");
+                Debug.WriteLine(ex);
+                throw ex;
             }
 
             return 0;

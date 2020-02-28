@@ -21,7 +21,6 @@
                 </Grid.ColumnDefinitions>
                 <ListView x:Name="listView"
                     Margin="0,10,10,10"
-                    ItemTapped="eventTapped"
                     HorizontalOptions="FillAndExpand"
                     VerticalOptions="CenterAndExpand"
                     Grid.Row="0" Grid.Column="0" HasUnevenRows="true"
@@ -40,7 +39,7 @@
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="3*" />
                                         </Grid.ColumnDefinitions>
-                                        <Image Grid.RowSpan="2" Grid.Column="0" Source="{Binding image}"/>
+                                        <Label Grid.RowSpan="2" Grid.Column="0" Text="{Binding image}" HorizontalTextAlignment="Center" FontSize="Large"/>
                                         <Label Text="{Binding eventName}" x:Name="key" Grid.Row="0" Grid.Column="1" HorizontalTextAlignment="Start"/>
                                         <Label Text="{Binding timeOccur}" x:Name="value" Grid.Row="1" Grid.Column="1" HorizontalTextAlignment="Start"/>
                                     </Grid>

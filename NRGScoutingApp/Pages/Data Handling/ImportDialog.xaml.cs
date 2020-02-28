@@ -7,6 +7,7 @@ using Rg.Plugins.Popup.Services;
 using Xamarin.Essentials;
 using System.Net;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace NRGScoutingApp {
     public partial class ImportDialog {
@@ -24,6 +25,10 @@ namespace NRGScoutingApp {
 
         async void importClicked (object sender, System.EventArgs e) {
             JObject data = MatchParameters.initializeEventsObject ();
+            if (data.ContainsKey(""))
+            {
+                data.Remove("");
+            }
             if (importData.Text.ToLower().Contains("https://pastebin.com/raw/")) {
                 try
                 {
@@ -36,34 +41,64 @@ namespace NRGScoutingApp {
                 }
             }
             try {
-                JObject importJSON = (JObject) JsonConvert.DeserializeObject (importData.Text);
-                if (importJSON.ContainsKey ("Matches") || importJSON.ContainsKey ("PitNotes")) {
-                    if (importJSON.ContainsKey ("Matches")) {
-                        if (!data.ContainsKey ("Matches")) {
-                            data.Add (new JProperty ("Matches", new JArray ()));
+                JObject import = (JObject) JsonConvert.DeserializeObject (importData.Text);
+                foreach (JProperty temp in import.Properties()) {
+                    Debug.WriteLine(temp);
+                    JObject importJSON = new JObject();
+                    //importJSON = importJSON;
+                    try
+                    {
+                        importJSON = temp.Value.ToObject<JObject>();
+                        if (importJSON.ContainsKey("Matches") || importJSON.ContainsKey("PitNotes"))
+                        {
+                            if (importJSON.ContainsKey("Matches"))
+                            {
+                                await addMatchItemsChecker(data, importJSON, (String)temp.Name); //TODO
+                            }
+                            if (importJSON.ContainsKey("PitNotes"))
+                            {
+                                await addPitItemsChecker(data, importJSON, (String)temp.Name); //TODO
+                            }
+                            Debug.WriteLine("final" + data);
+                            Preferences.Set(ConstantVars.APP_DATA_STORAGE, JsonConvert.SerializeObject(data));
+                            PopupNavigation.Instance.PopAsync();
                         }
-                        await addMatchItemsChecker (data, importJSON);
-                    }
-                    if (importJSON.ContainsKey ("PitNotes")) {
-                        if (!data.ContainsKey ("PitNotes")) {
-                            data.Add (new JProperty ("PitNotes", new JArray ()));
+                        else
+                        {
+                            await DisplayAlert("Alert", "Error in Data", "OK");
                         }
-                        await addPitItemsChecker (data, importJSON);
                     }
-                    Preferences.Set (ConstantVars.APP_DATA_STORAGE, JsonConvert.SerializeObject (data));
-                    await PopupNavigation.Instance.PopAsync (true);
-                } else {
-                    await DisplayAlert ("Alert", "Error in Data", "OK");
+                    catch
+                    {
+                        
+                    }
                 }
-            } catch (JsonReaderException) {
+            } catch (JsonReaderException ex) {
+                Debug.WriteLine(ex);
                 await DisplayAlert ("Alert", "Error in Data", "OK");
             }
         }
 
-        private async Task addPitItemsChecker (JObject data, JObject importJSON) {
-            JArray temp = (JArray) data["PitNotes"];
-            JArray importTemp = (JArray) importJSON["PitNotes"];
-            var tempList = temp.ToList ();
+        private async Task addPitItemsChecker (JObject data, JObject importJSON, String comp) {
+            //JArray temp = (JArray) data["PitNotes"];
+            JArray importTemp = (JArray)importJSON["PitNotes"];
+            List<JToken> tempList = new List<JToken>();
+            if(data.ContainsKey(comp) && (JArray)data[comp]["PitNotes"] != null)
+            {
+                tempList = ((JArray)data[comp]["PitNotes"]).ToList();
+            }
+            else if (!data.ContainsKey(comp))
+            {
+                data[comp] = new JObject();
+                data[comp]["PitNotes"] = new JArray();
+            }
+            else
+            {
+                data[comp]["PitNotes"] = new JArray();
+            }
+            JArray temp = (JArray)data[comp]["PitNotes"];
+            Debug.WriteLine("yet" + temp);
+            Debug.WriteLine("data" + data);
             foreach (var match in importTemp.ToList ()) {
                 if (tempList.Exists (x => x["team"].Equals (match["team"]))) {
                     var item = tempList.Find (x => x["team"].Equals (match["team"]));
@@ -124,13 +159,27 @@ namespace NRGScoutingApp {
             }
         }
 
-        private async Task addMatchItemsChecker (JObject data, JObject importJSON) {
+        private async Task addMatchItemsChecker (JObject data, JObject importJSON, string comp) {
             int tooMuch = 0;
             int mode = 0; // 1 for overwite all, 2 for ignore all
-            JArray temp = (JArray) data["Matches"];
             JArray importTemp = (JArray) importJSON["Matches"];
-            var tempList = temp.ToList ();
+            List<JToken> tempList = new List<JToken>();
+            if (data.ContainsKey(comp) && (JArray)data[comp]["Matches"] != null)
+            {
+                tempList = ((JArray)data[comp]["Matches"]).ToList();
+            }
+            else if (!data.ContainsKey(comp))
+            {
+                data[comp] = new JObject();
+                data[comp]["Matches"] = new JArray();
+            }
+            else
+            {
+                data[comp]["Matches"] = new JArray();
+            }
+            JArray temp = (JArray)data[comp]["Matches"];
             foreach (var match in importTemp.ToList ()) {
+                Debug.WriteLine("hi" + match);
                 if (tempList.Exists (x => x["matchNum"].Equals (match["matchNum"]) && x["side"].Equals (match["side"]))) {
                     var item = tempList.Find (x => x["matchNum"].Equals (match["matchNum"]) && x["side"].Equals (match["side"]));
                     if (!item["team"].Equals (match["team"])) {
@@ -144,7 +193,9 @@ namespace NRGScoutingApp {
                             tooMuch++;
                             if (tooMuch <= 1)
                             {
-                                var add = await DisplayAlert ("Warning!", "Match: " + item["matchNum"] +
+                                var add = await DisplayAlert ("Warning!",
+                                    "\nEvent: " + AdapterMethods.getEventName(comp) +
+                                    "Match: " + item["matchNum"] +
                                     "\nTeam: " + item["team"] +
                                     "\nSide: " + MatchFormat.matchSideFromEnum (Convert.ToInt32 (item["side"])) +
                                     "\nConflicts with Existing Match", "Overwite", "Ignore");
@@ -155,7 +206,9 @@ namespace NRGScoutingApp {
                             }
                             else
                             {
-                                var add = await DisplayActionSheet ("Warning!" + "\nMatch: " + item["matchNum"] +
+                                var add = await DisplayActionSheet ("Warning!",
+                                    "Event: " + AdapterMethods.getEventName(comp) +
+                                    "\nMatch: " + item["matchNum"] +
                                     "\nTeam: " + item["team"] +
                                     "\nSide: " + MatchFormat.matchSideFromEnum(Convert.ToInt32(item["side"])) +
                                     "\nConflicts with Existing Match", null, null, "Overwite", "Ignore", "Overwite All", "Ignore All");
@@ -181,6 +234,7 @@ namespace NRGScoutingApp {
                     temp.Add (match);
                 }
             }
+            //return data;
         }
     }
 }

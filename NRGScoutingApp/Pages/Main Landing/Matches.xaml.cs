@@ -4,7 +4,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Photos;
 using Rg.Plugins.Popup.Services;
 using Xamarin.Essentials;
 using Xamarin.Forms;
@@ -30,6 +29,13 @@ namespace NRGScoutingApp {
 
         protected override void OnAppearing () {
             popNav = false;
+            string comp = Preferences.Get(ConstantVars.CURRENT_EVENT_NAME,"Error in name");
+            try
+            {
+                comp = App.eventsList[comp];
+            }
+            catch { }
+            currComp.Text = comp;
             if (!Preferences.ContainsKey (ConstantVars.APP_DATA_STORAGE)) {
                 Preferences.Set (ConstantVars.APP_DATA_STORAGE, "");
                 Preferences.Set ("tempMatchEvents", "");
@@ -89,7 +95,7 @@ namespace NRGScoutingApp {
             if (!Preferences.ContainsKey ("appState")) {
                 appRestore = false;
                 Preferences.Set ("appState", 0);
-                Preferences.Set ("teamStart", "");
+                Preferences.Set ("teamStart", 0);
                 Preferences.Set ("timerValue", (int) 0);
                 Preferences.Set ("tempParams", "");
                 Preferences.Set ("tempMatchEvents", "");
@@ -108,7 +114,7 @@ namespace NRGScoutingApp {
                 appRestore = false;
                 Preferences.Set ("appState", 0);
                 Preferences.Set ("timerValue", (int) 0);
-                Preferences.Set ("teamStart", "");
+                Preferences.Set ("teamStart", 0);
                 Preferences.Set ("tempMatchEvents", "");
                 Preferences.Set ("tempParams", "");
                 Preferences.Set ("tempPitNotes", "");
@@ -156,10 +162,11 @@ namespace NRGScoutingApp {
         async void deleteAllClicked(object sender, System.EventArgs e)
         {
             await DisplayAlert("Hold it", "Make sure export to data first", "OK");
-            var del = await DisplayAlert("Notice", "Do you want to delete all matches? Data CANNOT be recovered.", "Yes", "No");
+            var del = await DisplayAlert("Notice", "Do you want to delete all app data (downloaded teams, etc)? Data CANNOT be recovered.", "Yes", "No");
             if (del)
             {
                 Preferences.Set(ConstantVars.APP_DATA_STORAGE, "{}");
+                Preferences.Clear();
                 populateMatchesList();
             }
         }

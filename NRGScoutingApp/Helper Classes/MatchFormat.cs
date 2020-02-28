@@ -14,17 +14,13 @@ namespace NRGScoutingApp {
             public int side { get; set; }
 
             public bool crossBaseline { get; set; }
-            public int autoLvl { get; set; }
-            public bool autoOTele { get; set; } //False is auto, true is tele
 
-            public int deathType { get; set; } //0 is no death, 1 is partial death, 2 full death
-            public bool climb { get; set; }
+            public double deathAmt { get; set; } 
             public int climbLvl { get; set; }
-            public bool giveAstClimb { get; set; }
-            public int giveAstClimbLvl { get; set; }
-            public bool needAstClimb { get; set; }
 
-            public int fouls { get; set; }
+            public int didDefense { get; set; }
+            public int gotDefended { get; set; }
+
             public bool yellowCard { get; set; }
             public bool redCard { get; set; }
             public String comments { get; set; }
@@ -73,7 +69,7 @@ namespace NRGScoutingApp {
             override
             public string ToString()
             {
-                return "Time:" + time + "Type:" + type + "num" + num;
+                return "Time:" + time + "Type:" + type + "num:" + num;
             }
         }
 
@@ -82,7 +78,8 @@ namespace NRGScoutingApp {
             for (int i = 0; i < Convert.ToInt32 (val.Property ("numEvents").Value); i++) {
                 toGive.Add (new MatchFormat.Data {
                     time = Convert.ToInt32 (val.Property ("TE" + i + "_0").Value),
-                        type = Convert.ToInt32 (val.Property ("TE" + i + "_1").Value)
+                    type = Convert.ToInt32 (val.Property ("TE" + i + "_1").Value),
+                    num = Convert.ToInt32(val.Property("TE" + i + "_2").Value)
                 });
             }
             return toGive;
@@ -96,6 +93,7 @@ namespace NRGScoutingApp {
             for (int i = 0; i < eventArray.Length; i++) {
                 events.Add ("TE" + i + "_0", eventArray[i].time);
                 events.Add ("TE" + i + "_1", eventArray[i].type);
+                events.Add ("TE" + i + "_2", eventArray[i].num);
             }
             return events;
         }

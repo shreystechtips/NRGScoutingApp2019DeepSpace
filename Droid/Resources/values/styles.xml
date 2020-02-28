@@ -21,9 +21,9 @@
         <!--<item name="navigationBarColor">#000000</item>
         <item name="statusBarColor">#000000</item>
         <item name="textColorPrimary">#ffffff</item>-->
-        <item name="windowActionModeOverlay">true
+        <item name="windowActionModeOverlay">true        </item>
         <item name="android:itemTextAppearance">@style/TodoActionBar.MenuTextStyle</item>
-        </item>
+
         <item name="android:colorPressedHighlight">@color/ListViewSelected</item>
    <item name="android:colorLongPressedHighlight">@color/ListViewHighlighted</item>
    <item name="android:colorFocusedHighlight">@color/ListViewSelected</item>
@@ -37,7 +37,7 @@
     <style name="TodoActionBarTitle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
     </style>
     
-    <style name="TodoActionBar.MenuTextStyle" parent="style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+    <style name="TodoActionBar.MenuTextStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
        <item name="android:textSize">20sp</item>
    </style>
    <color name="ListViewSelected">#ffffff</color>

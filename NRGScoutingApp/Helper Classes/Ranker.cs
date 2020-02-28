@@ -295,51 +295,22 @@ namespace NRGScoutingApp {
             try {
                 foreach (var match in fullData) {
                     int point = 0;
-                    if ((bool) match["climb"]) {
-                        if ((bool) match["needAstClimb"]) {
-                            switch ((int) match["climbLvl"]) {
-                                case 1:
-                                    point += (int) ConstantVars.PTS_NEED_HELP_LVL_2;
-                                    break;
-                                case 2:
-                                    point += (int) ConstantVars.PTS_NEED_HELP_LVL_3;
-                                    System.Diagnostics.Debug.WriteLine ("dam 1");
-                                    break;
-                                default:
-                                    point += 0;
-                                    break;
-                            }
-                        } else {
-                            switch ((int) match["climbLvl"]) {
-                                case 0:
-                                    point += (int) ConstantVars.PTS_SELF_LVL_1;
-                                    break;
-                                case 1:
-                                    point += (int) ConstantVars.PTS_SELF_LVL_2;
-                                    break;
-                                case 2:
-                                    point += (int) ConstantVars.PTS_SELF_LVL_3;
-                                    System.Diagnostics.Debug.WriteLine ("dam 2");
-                                    break;
-                                default:
-                                    point += 0;
-                                    break;
-                            }
-                        }
-                    }
-                    if ((bool) match["giveAstClimb"]) {
-                        switch ((int) match["giveAstClimbLvl"]) {
-                            case 0:
-                                point += (int) ConstantVars.PTS_HELPED_LVL_2;
-                                break;
-                            case 1:
-                                point += (int) ConstantVars.PTS_HELPED_LVL_3;
-                                System.Diagnostics.Debug.WriteLine ("dam 3");
-                                break;
-                            default:
-                                point += 0;
-                                break;
-                        }
+                    switch ((int) match["climbLvl"]) {
+                        case 0:
+                            point += (int) ConstantVars.PTS_SELF_LVL_0;
+                            break;
+                        case 1:
+                            point += (int) ConstantVars.PTS_SELF_LVL_1;
+                            break;
+                        case 2:
+                            point += (int) ConstantVars.PTS_SELF_LVL_2;
+                            break;
+                        case 3:
+                            point += (int)ConstantVars.PTS_SELF_LVL_3;
+                            break;
+                        default:
+                            point += 0;
+                            break;
                     }
 
                     if (totalPoint.ContainsKey ((int)match["team"])) {

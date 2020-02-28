@@ -21,6 +21,8 @@
             Clicked="deleteAllClicked" Order="Secondary" />
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
+        <StackLayout>
+            <Label x:Name="currComp" FontSize="Large" TextColor="{DynamicResource TextPrimaryColor}"/>
         <Grid HorizontalOptions="CenterAndExpand"
           
             RowSpacing="0"
@@ -42,6 +44,7 @@
                 <SearchBar x:Name="searchBar"
                     Placeholder="Match Number"
                     TextChanged="SearchBar_OnTextChanged"/>
+
                 <ListView x:Name="listView"
                     Margin="10,0"
                     ItemTapped="Handle_ItemTapped"
@@ -79,5 +82,6 @@
                 TextColor="Gray"
                 FontSize="Large"/>
         </Grid>
+            </StackLayout>
     </ContentPage.Content>
 </ContentPage>

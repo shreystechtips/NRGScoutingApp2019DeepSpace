@@ -143,22 +143,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)Pages\BlueAllianceMatches.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
-    </None>
-    <None Include="$(MSBuildThisFileDirectory)Pages\BlueAllianceMatches.xaml.cs">
-      <DependentUpon>BlueAllianceMatches.xaml</DependentUpon>
-    </None>
-    <None Include="$(MSBuildThisFileDirectory)Pages\Matches\CubeDroppedDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
-    </None>
-    <None Include="$(MSBuildThisFileDirectory)Pages\Matches\CubeDroppedDialog.xaml.cs">
-      <DependentUpon>CubeDroppedDialog.xaml</DependentUpon>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Helper Classes\" />
     <Folder Include="$(MSBuildThisFileDirectory)Pages\Matches\" />
     <Folder Include="$(MSBuildThisFileDirectory)Pages\Data Handling\" />

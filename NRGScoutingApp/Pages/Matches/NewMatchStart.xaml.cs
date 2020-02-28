@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -24,7 +25,7 @@ namespace NRGScoutingApp {
             BindingContext = this;
             InitializeComponent();
             timeSlider.Maximum = ConstantVars.MATCH_SPAN_MS;
-            Preferences.Set("appState", "1");
+            Preferences.Set("appState", 1);
             NavigationPage.SetHasBackButton(this, false);
             timerValueSetter();
             setEventButtons(isTimerRunning);
@@ -62,6 +63,7 @@ namespace NRGScoutingApp {
             if (ensure == ConstantVars.YES) {
                 events.Clear ();
                 saveEvents ();
+                timer.Reset();
                 timeSlider.Value = 0;
                 isTimerRunning = false;
                 climbTime = 0;
@@ -84,9 +86,9 @@ namespace NRGScoutingApp {
                 timeStartDate = DateTime.Now;
                 timerStartVal = 0;
                 //setCubeButton ();
-                await Task.Run (async () => {
-                    if (Device.RuntimePlatform == "iOS") {
-                        Device.StartTimer (TimeSpan.FromMilliseconds (ConstantVars.TIMER_INTERVAL_IOS), () => {
+                timer.Start();
+                await Task.Run (() => {
+                        Device.StartTimer (TimeSpan.FromMilliseconds (50), () => {
                             if (timerValue >= ConstantVars.MATCH_SPAN_MS || !isTimerRunning) {
                                 Device.BeginInvokeOnMainThread (() => {
                                     startTimer.Text = ConstantVars.TIMER_START;
@@ -95,50 +97,40 @@ namespace NRGScoutingApp {
                                 });
                                 return false;
                             }
-                            Timer_Elapsed ();
+                            Timer_Elapsed();
                             return true;
                         });
-                    } else if (Device.RuntimePlatform == "Android") {
-
-                        while (!(timerValue >= ConstantVars.MATCH_SPAN_MS || !isTimerRunning)) {
-                            await Task.Delay (ConstantVars.TIMER_INTERVAL_ANDROID);
-                            Timer_Elapsed ();
-                        }
-                        Device.BeginInvokeOnMainThread (() => {
-                            startTimer.Text = ConstantVars.TIMER_START;
-                            isTimerRunning = false;
-                            setEventButtons (isTimerRunning);
-                        });
-                    }
                 });
+
             } else if (isTimerRunning) {
                 startTimer.Text = ConstantVars.TIMER_START;
                 isTimerRunning = false;
+                timer.Reset();
+                lastTime = 0;
             }
             setEventButtons (isTimerRunning);
             setClimbButton ();
         }
+
+        Stopwatch timer = new Stopwatch();
+        int lastTime = 0;
         private void Timer_Elapsed () {
-            if (Device.RuntimePlatform == "iOS") {
-                timerValue += ConstantVars.TIMER_INTERVAL_IOS;
-                timerStartVal += ConstantVars.TIMER_INTERVAL_IOS;
-            } else if (Device.RuntimePlatform == "Android") {
-                timerValue += ConstantVars.TIMER_INTERVAL_ANDROID;
-                timerStartVal += ConstantVars.TIMER_INTERVAL_ANDROID;
-            }
+            setPickAndDropButtons(calculateCurrentBalls());
 
-            if (timerStartVal >= ConstantVars.TIMER_CHECK_INTERVAL) {
-                Console.WriteLine (DateTime.Now.Subtract (timeStartDate).TotalMilliseconds - timerStartVal);
-                timerValue += (int) DateTime.Now.Subtract (timeStartDate).TotalMilliseconds -
-                    timerStartVal;
-                timerStartVal = 0;
-                timeStartDate = DateTime.Now;
-            }
-
+            //if (timerStartVal >= ConstantVars.TIMER_CHECK_INTERVAL) {
+            //    Console.WriteLine (DateTime.Now.Subtract (timeStartDate).TotalMilliseconds - timerStartVal);
+            //    timerValue += (int) DateTime.Now.Subtract (timeStartDate).TotalMilliseconds -
+            //        timerStartVal;
+            //    timerStartVal = 0;
+            //    timeStartDate = DateTime.Now;
+            //}
+            int time = (int)timer.ElapsedMilliseconds;
+            timerValue += ((int)time - lastTime);
             Device.BeginInvokeOnMainThread (() => {
                 timeSlider.Value = timerValue;
-                timerText.Text = timeToString ((int) timerValue);
+                timerText.Text = timeToString ((int)timerValue);
             });
+            lastTime = time;
             Preferences.Set ("timerValue", (int) timerValue);
         }
 
@@ -181,7 +173,7 @@ namespace NRGScoutingApp {
         public int calculateCurrentBalls()
         {
             int total = 0;
-            Debug.WriteLine(events.Count + "count");
+            //Debug.WriteLine(events.Count + "count"); 
             foreach (MatchFormat.Data data in events)
             {
                 if (data.type == (int)MatchFormat.ACTION.pick1)
@@ -192,9 +184,9 @@ namespace NRGScoutingApp {
                 {
                     total-= data.num;
                 }
-                Debug.WriteLine(data);
+                //Debug.WriteLine(data);
             }
-            Debug.WriteLine(total);
+            //Debug.WriteLine(total);
             return total;
         }
 
@@ -216,6 +208,7 @@ namespace NRGScoutingApp {
             if (lastEvent != null)
             {
                 MatchFormat.Data initEvent = findEventAtTime(0);
+                Debug.WriteLine(lastEvent.num);
                 if (pickedTime == 0 &&  initEvent != null && initEvent.type == (int)MatchFormat.ACTION.pick1)
                 {
                     initEvent.num++;
@@ -235,6 +228,7 @@ namespace NRGScoutingApp {
                 lastEvent = new MatchFormat.Data { time = (int)pickedTime, type = (int)MatchFormat.ACTION.pick1 };
                 events.Add(lastEvent);
             }
+            saveEvents();
             int balls = calculateCurrentBalls();
             currentCellAmt.Text = balls.ToString();
             setPickAndDropButtons(balls);
@@ -242,22 +236,26 @@ namespace NRGScoutingApp {
 
         void undoClicked(object sender, System.EventArgs e)
         {
-            Debug.WriteLine("reee"+ lastEvent.ToString());
+            //Debug.WriteLine("reee"+ lastEvent.ToString());
             if (lastEvent != null)
             {
-                Debug.WriteLine(lastEvent.num);
-                lastEvent.num--;
+                //Debug.WriteLine(lastEvent.num);
                 bool removed = false;
-                if(lastEvent.num <= 0)
+                if(lastEvent.num <= 1)
                 {
                     events.Remove(lastEvent);
                     removed = true;
                 }
-                else if (events.Count > 0 && removed)
+                else
+                {
+                    lastEvent.num--;
+                }
+                if (events.Count > 0 && removed)
                 {
                     lastEvent = events[events.Count - 1];
                 }
             }
+            saveEvents();
             int balls = calculateCurrentBalls();
             currentCellAmt.Text = balls.ToString();
             setPickAndDropButtons(balls);
@@ -298,6 +296,7 @@ namespace NRGScoutingApp {
                     events.Add(lastEvent);
                 }
             }
+            saveEvents();
             int balls = calculateCurrentBalls();
             currentCellAmt.Text = balls.ToString();
             setPickAndDropButtons(balls);
@@ -353,12 +352,18 @@ namespace NRGScoutingApp {
             try {
                 try {
                     events = MatchFormat.JSONEventsToObject (JObject.Parse (Preferences.Get ("tempMatchEvents", "")));
+                    if (events != null && events.Count > 0)
+                    {
+                        lastEvent = events[events.Count - 1];
+                    }
                 } catch (JsonReaderException) { }
                 if (Object.ReferenceEquals (events, null)) {
-                    events = new List<MatchFormat.Data> ();
+                    events = new List<MatchFormat.Data>(); 
                 }
             } catch (InvalidCastException) { }
             setEventButtons (isTimerRunning);
+            int balls = calculateCurrentBalls();
+            currentCellAmt.Text = balls.ToString();
             //setCubeButton ();
         }
 

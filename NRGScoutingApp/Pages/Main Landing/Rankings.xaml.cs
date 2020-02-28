@@ -75,17 +75,18 @@ namespace NRGScoutingApp {
         //Updates events with given enum
         private void updateEvents () {
             //Updates string data from matches
-            JObject temp = JObject.Parse(Preferences.Get(ConstantVars.APP_DATA_STORAGE, "{}"));
-            Debug.WriteLine(temp);
-            if (temp.ContainsKey(eventName))
-            {
-                temp = (JObject)temp[eventName];
-            }
-            else
-            {
-                temp = new JObject();
-            }
-            mainRank.setData (JsonConvert.SerializeObject(temp));
+            Debug.WriteLine(Preferences.Get(ConstantVars.APP_DATA_STORAGE, "reee"));
+            //JObject temp = JObject.Parse(Preferences.Get(ConstantVars.APP_DATA_STORAGE, "{}"));
+            //Debug.WriteLine(temp);
+            //if (temp.ContainsKey(eventName))
+            //{
+            //    temp = (JObject)temp[eventName];
+            //}
+            //else
+            //{
+            //    temp = new JObject();
+            //}
+            mainRank.setData (App.getCompJson(Preferences.Get(ConstantVars.APP_DATA_STORAGE, "{}"),eventName));
             //Gets all data and sets it into ascending order based on each team's average time
             Dictionary<int, double> x = mainRank.getRank (rankChoice);
             Dictionary<int, double> y = new Dictionary<int, double>(x);

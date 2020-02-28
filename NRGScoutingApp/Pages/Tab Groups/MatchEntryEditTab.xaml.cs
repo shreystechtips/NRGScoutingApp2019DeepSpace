@@ -22,12 +22,12 @@ namespace NRGScoutingApp {
             return true;
         }
 
-        private String teamName = Preferences.Get ("teamStart", "");
+        private int teamName = Preferences.Get("teamStart", 0);
 
         protected override void OnAppearing () {
-            if (!teamName.Equals (Preferences.Get ("teamStart", ""))) {
-                teamName = Preferences.Get ("teamStart", "hello");
-                this.Title = teamName;
+            if (!teamName.Equals (Preferences.Get ("teamStart", 0))) {
+                teamName = Preferences.Get ("teamStart", -1);
+                this.Title = AdapterMethods.getTeamString(teamName);
             }
         }
         async void backClicked (object sender, System.EventArgs e) {

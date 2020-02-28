@@ -19,7 +19,7 @@ namespace NRGScoutingApp {
         protected override void OnAppearing () {
             if (!teamName.Equals (Preferences.Get ("teamStart", 0))) {
                 newName = Preferences.Get ("teamStart", 0);
-                //this.Title = AdapterMethods.getTeamString(newName);
+                this.Title = AdapterMethods.getTeamString(newName);
             }
             eventName = Preferences.Get(ConstantVars.CURRENT_EVENT_NAME, "");
         }
@@ -36,7 +36,7 @@ namespace NRGScoutingApp {
             NavigationPage.SetHasBackButton (this, false);
             InitializeComponent ();
             teamChanger.IsVisible = teamChange;
-            vals[vals.Length - 1] = Preferences.Get ("teamStart", "memes not recieve");
+            vals[vals.Length - 1] = Preferences.Get ("teamStart", -1).ToString();
             for (int i = 0; i < inputs.Length; i++) {
                 questions[i] = new Label {
                     Text = ConstantVars.QUESTIONS[i],
@@ -83,11 +83,11 @@ namespace NRGScoutingApp {
             if (!text) {
                 JObject data = JObject.Parse (Preferences.Get (ConstantVars.APP_DATA_STORAGE, ""));
                 JArray pitNotes = (JArray) data[eventName]["PitNotes"];
-                Debug.WriteLine("sd" + Preferences.Get("teamStart", 0));
-                foreach (var s in pitNotes.ToList())
-                {
-                    Debug.WriteLine(s);
-                }
+                //Debug.WriteLine("sd" + Preferences.Get("teamStart", 0));
+                //foreach (var s in pitNotes.ToList())
+                //{
+                //    Debug.WriteLine(s);
+                //}
                 var delItem = pitNotes.ToList ().Find (x => (int)x["team"] == (Preferences.Get ("teamStart", 0)));
                 pitNotes.Remove (delItem);
                 if (pitNotes.Count <= 0) {
@@ -127,7 +127,7 @@ namespace NRGScoutingApp {
 
         //Clears all properties for use in next match
         void clearMatchItems () {
-            Preferences.Set ("teamStart", "");
+            Preferences.Set ("teamStart", 0);
             Preferences.Set ("appState", 0);
             Preferences.Set ("tempPitNotes", "");
         }
@@ -226,12 +226,11 @@ namespace NRGScoutingApp {
                 } else {
                     scoutArray = new JArray ();
                 }
-                Debug.WriteLine(scoutArray);
+                //Debug.WriteLine(scoutArray);
                 try {
-                    Debug.WriteLine(scoutArray.Count);
-                    Debug.WriteLine(scoutArray.ToList().Exists(x => (int)x["team"] == (team)));
+                    //Debug.WriteLine(scoutArray.Count);
+                    //Debug.WriteLine(scoutArray.ToList().Exists(x => (int)x["team"] == (team)));
                     if (scoutArray.Count > 0 && scoutArray.ToList().Exists(x => (int)x["team"] == (team))) {
-                        Debug.WriteLine("yret");
                         var final = scoutArray.ToList ().Find (x => (int)x["team"] == (team));
                         for (int i = 0; i < inputs.Length; i++) {
                             try {

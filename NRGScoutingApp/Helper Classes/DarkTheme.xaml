@@ -10,4 +10,8 @@
             <Color x:Key="TextPrimaryColor">#FFFFFF</Color>
             <Color x:Key="TextSecondaryColor">#B0FFFFFF</Color>
             <Color x:Key="TextTernaryColor">#fdad13</Color>
+                <Style TargetType="NavigationPage">
+                <Setter Property="BarBackgroundColor" Value="{StaticResource Primary}"/>
+                <Setter Property="BarTextColor" Value="White"/>
+            </Style>
 </ResourceDictionary>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xamarin.Forms;
 
 namespace NRGScoutingApp {
@@ -51,8 +52,9 @@ namespace NRGScoutingApp {
         public static List<EventListFormat> EventViewList (List<MatchFormat.Data> matchData) {
             List<EventListFormat> listData = new List<EventListFormat> ();
             for (int i = 0; i < matchData.Count; i++) {
+                Debug.WriteLine(matchData[i].num.ToString());
                 listData.Add (new EventListFormat {
-                    image = returnEventImage (matchData[i].type),
+                        image = matchData[i].num.ToString(),
                         eventName = returnEventText (matchData[i].type),
                         timeOccur = NewMatchStart.timeToString (matchData[i].time)
                 });
@@ -106,39 +108,39 @@ namespace NRGScoutingApp {
             }
         }
 
-        async void eventTapped (object sender, Xamarin.Forms.ItemTappedEventArgs e) {
-            int index = (listView.ItemsSource as List<EventListFormat>).IndexOf (e.Item as EventListFormat);
-            var del = await DisplayAlert ("Alert", "Are you sure you want to delete this event?", "Yes", "No");
-            if (del) {
-                if (eventsList[index].eventName.Contains (ConstantVars.PICK_KEYWORD)) {
-                    if ((index + 1) < eventsList.Count && eventsList[index + 1].eventName.Contains (ConstantVars.DROP_KEYWORD)) {
-                        removeAtIndex (index + 1);
-                        removeAtIndex (index);
-                    } else {
-                        removeAtIndex (index);
-                        NewMatchStart.setItemToDefault = true;
-                    }
-                } else if (eventsList[index].eventName.Contains (ConstantVars.DROP_KEYWORD)) {
-                    if ((index - 1) >= 0 && eventsList[index - 1].eventName.Contains (ConstantVars.PICK_KEYWORD)) {
-                        removeAtIndex (index - 1);
-                        removeAtIndex (index - 1);
-                    } else {
-                        removeAtIndex (index);
-                    }
-                } else {
-                    removeAtIndex (index);
-                }
-            }
-            listView.ItemsSource = null;
-            listView.ItemsSource = eventsList;
-            setListVisibility ();
-        }
-
-        void removeAtIndex (int index) {
-            NewMatchStart.events.RemoveAt (index);
-            eventsList.RemoveAt (index);
-            NewMatchStart.saveEvents ();
-        }
+        //async void eventTapped (object sender, Xamarin.Forms.ItemTappedEventArgs e) {
+        //    int index = (listView.ItemsSource as List<EventListFormat>).IndexOf (e.Item as EventListFormat);
+        //    var del = await DisplayAlert ("Alert", "Are you sure you want to delete this event?", "Yes", "No");
+        //    if (del) {
+        //        if (eventsList[index].eventName.Contains (ConstantVars.PICK_KEYWORD)) {
+        //            if ((index + 1) < eventsList.Count && eventsList[index + 1].eventName.Contains (ConstantVars.DROP_KEYWORD)) {
+        //                removeAtIndex (index + 1);
+        //                removeAtIndex (index);
+        //            } else {
+        //                removeAtIndex (index);
+        //                NewMatchStart.setItemToDefault = true;
+        //            }
+        //        } else if (eventsList[index].eventName.Contains (ConstantVars.DROP_KEYWORD)) {
+        //            if ((index - 1) >= 0 && eventsList[index - 1].eventName.Contains (ConstantVars.PICK_KEYWORD)) {
+        //                removeAtIndex (index - 1);
+        //                removeAtIndex (index - 1);
+        //            } else {
+        //                removeAtIndex (index);
+        //            }
+        //        } else {
+        //            removeAtIndex (index);
+        //        }
+        //    }
+        //    listView.ItemsSource = null;
+        //    listView.ItemsSource = eventsList;
+        //    setListVisibility ();
+        //}
+        //
+        //void removeAtIndex (int index) {
+        //    NewMatchStart.events.RemoveAt (index);
+        //    eventsList.RemoveAt (index);
+        //    NewMatchStart.saveEvents ();
+        //}
 
     }
 }

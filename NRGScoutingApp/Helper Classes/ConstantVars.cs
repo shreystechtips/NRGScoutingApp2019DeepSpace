@@ -18,6 +18,7 @@ namespace NRGScoutingApp {
         public static readonly String TEAM_LIST_STORAGE = "TeamsList";
         public static readonly String EVENT_LIST_STORAGE = "EventsList";
         public static readonly String CURRENT_EVENT_NAME = "CurrentEvent";
+        public static readonly String COMPETITION_MATCHES_LIST = "CompMatchList";
 
         public static readonly String APP_DATA_STORAGE = "AllData";
 
@@ -42,13 +43,13 @@ namespace NRGScoutingApp {
         public static readonly String DROP_NONE_IMAGE = "ic_cancel.png";
         public static readonly String START_CLIMB_IMAGE = "ic_climb_yellow.png";
 
-        public static readonly String PICK_ITEM_1_TEXT = "Picked Hatch";
-        public static readonly String PICK_ITEM_2_TEXT = "Picked Cargo";
+        public static readonly String PICK_ITEM_1_TEXT = "Picked Power Cell";
+        //public static readonly String PICK_ITEM_2_TEXT = "Picked Cargo";
         public static readonly String DROP_ITEM_TEXT = "Dropped Item";
-        public static readonly String DROP_1_TEXT = "Dropped Low";
-        public static readonly String DROP_2_TEXT = "Dropped Medium";
-        public static readonly String DROP_3_TEXT = "Dropped High";
-        public static readonly String DROP_4_TEXT = "Dropped Ship";
+        public static readonly String DROP_1_TEXT = "Low Port";
+        public static readonly String DROP_2_TEXT = "Outer Port";
+        public static readonly String DROP_3_TEXT = "Inner Port";
+        //public static readonly String DROP_4_TEXT = "Dropped Ship";
         public static readonly String DROP_NONE_TEXT = "Dropped None";
         public static readonly String START_CLIMB_TEXT = "Start Climb";
         public static readonly String DROP_KEYWORD = "Drop";
@@ -125,9 +126,10 @@ namespace NRGScoutingApp {
         //Climb
         public static readonly double PTS_NEED_HELP_LVL_2 = 1;
         public static readonly double PTS_NEED_HELP_LVL_3 = 1;
-        public static readonly double PTS_SELF_LVL_1 = 3;
-        public static readonly double PTS_SELF_LVL_2 = 6;
-        public static readonly double PTS_SELF_LVL_3 = 12;
+        public static readonly double PTS_SELF_LVL_0 = 0;
+        public static readonly double PTS_SELF_LVL_1 = 5;
+        public static readonly double PTS_SELF_LVL_2 = 30;
+        public static readonly double PTS_SELF_LVL_3 = 30; //TODO:
         public static readonly double PTS_HELPED_LVL_2 = 1;
         public static readonly double PTS_HELPED_LVL_3 = 2;
         public static readonly int PTS_LVL_1_CLIMB = 3;
@@ -147,19 +149,18 @@ namespace NRGScoutingApp {
         //Separates the entries if same team was scouted twice
         public static readonly String entrySeparator = "\n:::::::\n";
         public static readonly String[] QUESTIONS = {
-            "Hours practiced?",
-            "Drive base?",
-            "How many hatch panels/cargo do you average per match?",
-            "What do you focus on (rocket/cargo ship)?",
-            "What level(s) can your bot reach?",
-            "All positions in auto for sandstorm?",
-            "Auto vs tele for sandstorm?",
-            "Can you get to the highest platform in the hab? What is your prefered method in endgame?",
-            "Speed?",
-            "Mechanism?",
-            "Placement?",
-            "Anything you noticed about the team?",
-            "Other"
+            "What drive base do you use?",
+            "How much does your robot weigh",
+            "Drive practice hours? (estimate)",
+            "Can you climb? if so where on the bar and at what level can you climb?",
+            "Low goal or high goal?",
+            "Inner port capability?",
+            "Trench run capability?",
+            "How many power cells per match? (estimate)",
+            "What does auto do?",
+            "Anything else you would like to tell us?",
+            "Other?"
+
         };
 
         public enum TEAM_SELECTION_TYPES {

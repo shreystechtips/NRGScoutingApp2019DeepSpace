@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -25,17 +26,13 @@ namespace NRGScoutingApp {
             side = 0,
 
             crossBaseline = false,
-            autoLvl = 0,
-            autoOTele = false,
 
-            deathType = 0,
-            climb = false,
+            deathAmt = 0,
             climbLvl = 0,
-            giveAstClimb = false,
-            giveAstClimbLvl = 0,
-            needAstClimb = false,
 
-            fouls = 0,
+            didDefense = 0,
+            gotDefended = 0,
+
             yellowCard = false,
             redCard = false,
             comments = ""
@@ -51,8 +48,68 @@ namespace NRGScoutingApp {
             Navigation.PushAsync (new MatchEntryStart (ConstantVars.TEAM_SELECTION_TYPES.teamSelection));
         }
 
-        //Confirms user action to go back and clears all data for next match
-        async void backClicked (object sender, System.EventArgs e) {
+        async void autoFillClicked(object sender, System.EventArgs e)
+        {
+            string currEvent = Preferences.Get("CurrentEvent", "");
+            if (Convert.ToInt32(matchnum.Text) < 1)
+            {
+                await DisplayAlert("Oops", "please enter match num first", "ok");
+                return;
+            }
+            JObject s = App.matchesList;
+            s = (s == null) ? new JObject() : s;
+            if (s.ContainsKey(currEvent))
+            {
+                setSide(currEvent);
+            }
+            else
+            {
+                var response = await DisplayAlert("Oops", "Looks Like you don't have this downloaded", "Download", "Don't Download");
+                if (response)
+                {
+                    DataDownload.getEventMatches(currEvent);
+                    setSide(currEvent);
+                }
+            }
+        }
+
+        async void setSide(string currEvent)
+        {
+            bool showError = true;
+            if (App.matchesList.ContainsKey(currEvent))
+            {
+                var temp = App.matchesList[currEvent];
+                if (((JObject)temp).ContainsKey(matchnum.Text))
+                {
+                    temp = temp[matchnum.Text];
+                    if (temp["blue"].Contains(teamName))
+                    {
+                        showError = false;
+                        PositionPicker.SelectedIndex = 4 + ((JArray)temp["blue"]).IndexOf(teamName);
+                    }
+                    else
+                    {
+                        showError = false;
+                        PositionPicker.SelectedIndex = 1 + ((JArray)temp["red"]).IndexOf(teamName);
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine("hmm0");
+                }
+            }
+            else
+            {
+                Debug.WriteLine("hmm1");
+            }
+            if (showError)
+            {
+                await DisplayAlert("Error", "Could not find side and competition for given team", "OK");
+            }
+        }
+
+            //Confirms user action to go back and clears all data for next match
+            async void backClicked (object sender, System.EventArgs e) {
             var text = await DisplayAlert ("Alert", "Do you want to discard progress?", "Yes", "No");
             if (text) {
                 clearMatchItems ();
@@ -114,51 +171,21 @@ namespace NRGScoutingApp {
             onParamUpdate ();
         }
 
-        void Handle_Toggled (object sender, Xamarin.Forms.ToggledEventArgs e) {
+
+
+        void Handle_Toggled(object sender, Xamarin.Forms.ToggledEventArgs e)
+        {
             Entry.crossBaseline = e.Value;
-            setAutoButtons ();
-            onParamUpdate ();
-        }
-
-        void Auto_Level_Changed (object sender, System.EventArgs e) {
-            Entry.autoLvl = autoLvl.SelectedIndex;
-            onParamUpdate ();
-        }
-
-        void autoOrTeleSandstorm (object sender, Xamarin.Forms.ToggledEventArgs e) {
-            Entry.autoOTele = e.Value; //0 is auto 1 is tele
-            onParamUpdate ();
+            onParamUpdate();
         }
 
         void deathSelector (object sender, System.EventArgs e) {
-            Entry.deathType = death.SelectedIndex;
-            onParamUpdate ();
-        }
-
-        void climb (object sender, Xamarin.Forms.ToggledEventArgs e) {
-            Entry.climb = e.Value;
-            setEndGameSelfButtons ();
+            Entry.deathAmt = Math.Round(death.Value);
             onParamUpdate ();
         }
 
         void climbLvlSelector (object sender, System.EventArgs e) {
             Entry.climbLvl = climbLvl.SelectedIndex;
-        }
-
-        void needAssistToggle (object sender, Xamarin.Forms.ToggledEventArgs e) {
-            Entry.needAstClimb = e.Value;
-            onParamUpdate ();
-        }
-
-        void helpedClimb (object sender, Xamarin.Forms.ToggledEventArgs e) {
-            Entry.giveAstClimb = e.Value;
-            setEndGameOtherButtons ();
-            onParamUpdate ();
-        }
-
-        void giveAssistClimbLvlSelector (object sender, System.EventArgs e) {
-            Entry.giveAstClimbLvl = giveAssistClimbLvl.SelectedIndex;
-            onParamUpdate ();
         }
 
         void Handle_Toggled_11 (object sender, Xamarin.Forms.ToggledEventArgs e) {
@@ -176,6 +203,15 @@ namespace NRGScoutingApp {
             onParamUpdate ();
         }
 
+        void defenseSlider_Updated(System.Object sender, Xamarin.Forms.ValueChangedEventArgs e)
+        {
+            gotDefended.Value = Math.Round(gotDefended.Value);
+            didDefense.Value = Math.Round(didDefense.Value);
+            Entry.gotDefended = (int)gotDefended.Value;
+            Entry.didDefense = (int)didDefense.Value;
+            onParamUpdate();
+        }
+
         void Match_Num_Updated (object sender, Xamarin.Forms.TextChangedEventArgs e) {
             try {
                 Entry.matchNum = Convert.ToInt32 (e.NewTextValue);
@@ -188,17 +224,6 @@ namespace NRGScoutingApp {
             }
         }
 
-        void Fouls_Updated (object sender, Xamarin.Forms.TextChangedEventArgs e) {
-            try {
-                Entry.fouls = Convert.ToInt32 (e.NewTextValue);
-                onParamUpdate ();
-            } catch (FormatException) {
-                if (!String.IsNullOrWhiteSpace (e.NewTextValue)) {
-                    DisplayAlert ("Warning", "Match Number Contains Letters. Did Not Update Value", "OK");
-                    fouls.Text = "0";
-                }
-            }
-        }
 
         //Returns Jobject based on wheter match events string is empty or not
         public static JObject initializeEventsObject () {
@@ -244,33 +269,23 @@ namespace NRGScoutingApp {
                 PositionPicker.SelectedIndex = entries.side;
 
                 crossbase.IsToggled = entries.crossBaseline;
-                autoLvl.SelectedIndex = entries.autoLvl;
-                autoOTele.IsToggled = entries.autoOTele;
 
-                death.SelectedIndex = entries.deathType;
-                climbSwitch.IsToggled = entries.climb;
+                death.Value = entries.deathAmt;
                 climbLvl.SelectedIndex = entries.climbLvl;
-                assisted.IsToggled = entries.giveAstClimb;
-                needed.IsToggled = entries.needAstClimb;
-                giveAssistClimbLvl.SelectedIndex = entries.giveAstClimbLvl;
 
-                fouls.Text = entries.fouls.ToString ();
+
                 yellow.IsToggled = entries.yellowCard;
                 red.IsToggled = entries.redCard;
                 comments.Text = entries.comments;
                 Entry = entries;
             } else {
-                death.SelectedIndex = (int) MatchFormat.DEATH_TYPE.noDeath;
-                fouls.Text = "0";
+                death.Value = (int) MatchFormat.DEATH_TYPE.noDeath;
             }
-            setAutoButtons ();
-            setEndGameSelfButtons ();
-            setEndGameOtherButtons ();
         }
 
         //Clears all properties for use in next match
         public static void clearMatchItems () {
-            Preferences.Set ("teamStart", "");
+            Preferences.Set("teamStart", 0);
             Preferences.Set ("appState", 0);
             Preferences.Set ("timerValue", 0);
             Preferences.Set ("lastItemPicked", 0);
@@ -298,33 +313,6 @@ namespace NRGScoutingApp {
             });
         }
 
-        //Disables Auto Buttons if certain button is not toggled
-        void setAutoButtons () {
-            autoLvl.IsEnabled = crossbase.IsToggled;
-            autoOTele.IsEnabled = crossbase.IsToggled;
-            if (!crossbase.IsToggled) {
-                autoLvl.SelectedIndex = -1;
-                autoOTele.IsToggled = false;
-            }
-        }
-
-        //Disables Self Climb EndGame Buttons if certain button is not toggled
-        void setEndGameSelfButtons () {
-            climbLvl.IsEnabled = climbSwitch.IsToggled;
-            needed.IsEnabled = climbSwitch.IsToggled;
-            if (!climbSwitch.IsToggled) {
-                climbLvl.SelectedIndex = -1;
-                needed.IsToggled = false;
-            }
-        }
-
-        //Disables Help Climb EndGame Buttons if certain button is not toggled
-        void setEndGameOtherButtons () {
-            giveAssistClimbLvl.IsEnabled = assisted.IsToggled;
-            if (!assisted.IsToggled) {
-                giveAssistClimbLvl.SelectedIndex = -1;
-            }
-        }
 
         //Pops errors if fields are checked but their counterparts are not
         private bool popErrorsToScreen () {
@@ -336,18 +324,6 @@ namespace NRGScoutingApp {
             }
             if (PositionPicker.SelectedIndex < 0) {
                 errors += "\n- Position";
-                toPrint = true;
-            }
-            if (crossbase.IsToggled && autoLvl.SelectedIndex < 0) {
-                errors += "\n- Auto Level";
-                toPrint = true;
-            }
-            if (climbSwitch.IsToggled && climbLvl.SelectedIndex < 0) {
-                errors += "\n- Climb Options";
-                toPrint = true;
-            }
-            if (assisted.IsToggled && giveAssistClimbLvl.SelectedIndex < 0) {
-                errors += "\n- Give Climb Options";
                 toPrint = true;
             }
             if (Entry.team <= 0)

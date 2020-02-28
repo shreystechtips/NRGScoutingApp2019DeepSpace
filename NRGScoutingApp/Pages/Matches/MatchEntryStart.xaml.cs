@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 
@@ -33,16 +35,21 @@ namespace NRGScoutingApp {
 
         List<string> teams = new List<string>();
 
-        void populateTeamList(ListView listView)
+        async void populateTeamList(ListView listView)
         {
-            if (App.teamsList.Count <= 0)
+            Debug.WriteLine("start" + App.teamsList.Count);
+            await Task.Run(() =>
             {
-                DataDownload.populateTeamList(Preferences.Get(ConstantVars.TEAM_LIST_STORAGE, "[]"), App.teamsList);
-            }
-            setSimplifiedTeams(App.teamsList, teams);
-            listView.ItemsSource = null;
-            listView.ItemsSource = teams;
-            listView.IsRefreshing = false;
+                if (App.teamsList.Count <= 0)
+                {
+                    Debug.WriteLine("Whatt");
+                    DataDownload.populateTeamList(Preferences.Get(ConstantVars.TEAM_LIST_STORAGE, "[]"), App.teamsList);
+                }
+                setSimplifiedTeams(App.teamsList, teams);
+            });
+            Debug.WriteLine("wre" + App.teamsList.Count);
+                listView.ItemsSource = null;
+                listView.ItemsSource = teams;
         }
 
         public Boolean goBack = false;
@@ -63,7 +70,6 @@ namespace NRGScoutingApp {
             {
                 teamnum = AdapterMethods.getTeamInt(teamName, App.teamsList);
                 Preferences.Set("teamStart", teamnum);
-                await App.Current.SavePropertiesAsync();
                 switch (goToMatch)
                 {
                     case ConstantVars.TEAM_SELECTION_TYPES.match:
@@ -83,6 +89,7 @@ namespace NRGScoutingApp {
             catch (Exception ex)
             {
                 await DisplayAlert("Failed to get team number from the list", "", "OK");
+                System.Diagnostics.Debug.WriteLine(ex);
             }
 
         }

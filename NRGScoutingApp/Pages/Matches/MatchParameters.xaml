@@ -5,7 +5,7 @@
     xmlns:ios="clr-namespace:Xamarin.Forms.PlatformConfiguration.iOSSpecific;assembly=Xamarin.Forms.Core"
     ios:Page.UseSafeArea="true"
     Icon="ic_assignment.png"
-    ios:Title="Match Info"
+    Title="Match Info"
     ios:NavigationPage.PrefersLargeTitles="true"
              BackgroundColor="{DynamicResource backgroundColor}">
 
@@ -21,6 +21,7 @@
             <StackLayout>
                 <Label Text="Change Team"
                        TextColor="{DynamicResource TextPrimaryColor}"
+                       TextDecorations="Underline"
                     Margin="10"
                     FontSize="20"
                     x:Name="teamChanger">
@@ -28,9 +29,19 @@
                         <TapGestureRecognizer Tapped="teamChanged"/>
                     </Label.GestureRecognizers>
                 </Label>
-                <FlexLayout
-                    Direction="Row"
-                    AlignItems="Center">
+                <Label Text="Autofill Data"
+                       TextColor="{DynamicResource TextPrimaryColor}"
+                       TextDecorations="Underline"
+                    Margin="10"
+                    FontSize="20"
+                    x:Name="autoFill">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="autoFillClicked"/>
+                    </Label.GestureRecognizers>
+                </Label>
+                <StackLayout
+                    Orientation="Horizontal"
+                    HorizontalOptions="StartAndExpand">
                     <Label Text="Match Number:"
                            
                         Margin="10"
@@ -40,7 +51,7 @@
                         TextChanged="Match_Num_Updated"
                         Keyboard="Numeric"
                         MaxLength="8"/>
-                </FlexLayout>
+                </StackLayout>
                 <Picker x:Name="PositionPicker"
                     Title="Team Identifier"
                     HorizontalOptions="StartAndExpand"
@@ -60,9 +71,9 @@
                     FontSize="25"
                     FontAttributes="Bold"
                     HorizontalOptions="CenterAndExpand"/>
-                <FlexLayout
-                    Direction="Row"
-                    AlignItems="Center">
+                <StackLayout
+                    Orientation="Horizontal"
+                    HorizontalOptions="StartAndExpand">
                     <Switch x:Name="crossbase"
                         Toggled="Handle_Toggled"
                         Margin="10,5,0,0"
@@ -70,64 +81,51 @@
                     <Label Text="Crossed Baseline"
                         Margin="10,3"
                         VerticalOptions="CenterAndExpand"/>
-                </FlexLayout>
-                <Picker x:Name="autoLvl"
-                    Title="Sandstorm Level"
-                    HorizontalOptions="StartAndExpand"
-                    Margin="10,5,0,0"
-                    FontSize="20"
-                    SelectedIndexChanged="Auto_Level_Changed">
-                    <Picker.Items>
-                        <x:String>1</x:String>
-                        <x:String>2</x:String>
-                    </Picker.Items>
-                </Picker>
-                <FlexLayout
-                    Direction="Row"
-                    AlignItems="Center"
-                    Margin="0,0">
-                    <Label Text="Auto"
-                        Margin="10,3"
-                        VerticalOptions="CenterAndExpand"/>
-                    <Switch Margin="10,5,0,0"
-                        x:Name="autoOTele"
-                        Toggled="autoOrTeleSandstorm"
-                        VerticalOptions="CenterAndExpand" />
-                    <Label Text="Manual"
-                        Margin="10,3"
-                        VerticalOptions="CenterAndExpand"/>
-                </FlexLayout>
+                </StackLayout>
                 <Label Text="In-Game"
                     FontSize="25"
                     FontAttributes="Bold"
                     HorizontalOptions="CenterAndExpand"/>
-                <Picker x:Name="death"
-                    Title="Death Type"
-                    HorizontalOptions="StartAndExpand"
-                    Margin="10,5,0,0"
-                    FontSize="20"
-                    SelectedIndexChanged="deathSelector">
-                    <Picker.Items>
-                        <x:String>No Death</x:String>
-                        <x:String>Partial Death</x:String>
-                        <x:String>Full Death</x:String>
-                    </Picker.Items>
-                </Picker>
+                <StackLayout Orientation="Horizontal">
+                <Label Text="No death"   
+                        Margin="10"
+                        FontSize="20"/>
+               <Slider x:Name="death" ValueChanged="deathSelector" HorizontalOptions="FillAndExpand" Minimum="0" Maximum="1"/>
+                                    <Label Text="full death"   
+                        Margin="10"
+                        FontSize="20"/>
+                    </StackLayout>
+                <Label Text="Did Defense:"   
+                        Margin="10"
+                        FontSize="20"/>
+                <StackLayout Orientation="Horizontal">
+                <Label Text="None"   
+                        Margin="10"
+                        FontSize="20"/>
+               <Slider x:Name="didDefense" ValueChanged="defenseSlider_Updated" HorizontalOptions="FillAndExpand" Minimum="0" Maximum="5"/>
+                                    <Label Text="A lot"   
+                        Margin="10"
+                        FontSize="20"/>
+                    </StackLayout>
+                 <Label Text="Got Defended:"   
+                        Margin="10"
+                        FontSize="20"/>
+                <StackLayout Orientation="Horizontal">
+                <Label Text="None"   
+                        Margin="10"
+                        FontSize="20"/>
+               <Slider x:Name="gotDefended" ValueChanged="defenseSlider_Updated" HorizontalOptions="FillAndExpand" Minimum="0" Maximum="5"/>
+                                    <Label Text="A lot"   
+                        Margin="10"
+                        FontSize="20"/>
+                    </StackLayout>
                 <Label Text="End-Game"
                     FontSize="25"
                     FontAttributes="Bold"
                     HorizontalOptions="CenterAndExpand"/>
-                <FlexLayout
-                    Direction="Row"
-                    AlignItems="Center">
-                    <Switch Margin="10,5,0,0"
-                        x:Name="climbSwitch"
-                        Toggled="climb"
-                        VerticalOptions="CenterAndExpand" />
-                    <Label Text="Climb"
-                        Margin="10,3"
-                        VerticalOptions="CenterAndExpand"/>
-                </FlexLayout>
+                <StackLayout
+                    Orientation="Horizontal"
+                    HorizontalOptions="StartAndExpand">
                 <Picker x:Name="climbLvl"
                     Title="Climb Level"
                     HorizontalOptions="StartAndExpand"
@@ -135,62 +133,23 @@
                     FontSize="20"
                     SelectedIndexChanged="climbLvlSelector">
                     <Picker.Items>
-                        <x:String>Level 1</x:String>
-                        <x:String>Level 2</x:String>
-                        <x:String>Level 3</x:String>
+                        <x:String>None</x:String>
+                        <x:String>Park</x:String>
+                        <x:String>Climb</x:String>
+                        <x:String>Climb and Level</x:String>
                     </Picker.Items>
                 </Picker>
-                <FlexLayout
-                    Direction="Row"
-                    AlignItems="Center">
-                    <Switch Margin="10,5,0,0"
-                        x:Name="needed"
-                        Toggled="needAssistToggle"
-                        VerticalOptions="CenterAndExpand" />
-                    <Label Text="Needed Assist"
-                        Margin="10,3"
-                        VerticalOptions="CenterAndExpand"/>
-                </FlexLayout>
-                <FlexLayout
-                    Direction="Row"
-                    AlignItems="Center">
-                    <Switch Margin="10,5,0,0"
-                        x:Name="assisted"
-                        Toggled="helpedClimb"
-                        VerticalOptions="CenterAndExpand" />
-                    <Label Text="Assisted Climb"
-                        Margin="10,3"
-                        VerticalOptions="CenterAndExpand"/>
-                </FlexLayout>
-                <Picker x:Name="giveAssistClimbLvl"
-                    Title="Climb Level"
-                    HorizontalOptions="StartAndExpand"
-                    Margin="10,5,0,0"
-                    FontSize="20"
-                    SelectedIndexChanged="giveAssistClimbLvlSelector">
-                    <Picker.Items>
-                        <x:String>Level 2</x:String>
-                        <x:String>Level 3</x:String>
-                    </Picker.Items>
-                </Picker>
+                    <Label Text="Climb"   
+                        Margin="10"
+                        FontSize="20"/>
+                    </StackLayout>
                 <Label Text="Penalties"
                     FontSize="25"
                     FontAttributes="Bold"
                     HorizontalOptions="CenterAndExpand"/>
-                <Label Text="Fouls:"
-                    Margin="10"
-                    FontSize="20"/>
-                <Entry Placeholder="0"
-                    x:Name="fouls"
-                    Keyboard="Numeric"
-                    TextChanged="Fouls_Updated"
-                    HorizontalOptions="StartAndExpand"
-                    Margin="10,5,0,0"
-                    WidthRequest="50"
-                    MaxLength="8"/>
-                <FlexLayout
-                    Direction="Row"
-                    AlignItems="Center">
+                <StackLayout
+                    Orientation="Horizontal"
+                    HorizontalOptions="StartAndExpand">
                     <Switch Margin="10,5,0,0"
                         x:Name="yellow"
                         Toggled="Handle_Toggled_11"
@@ -198,10 +157,10 @@
                     <Label Text="Received Yellow Card"
                         Margin="10,3"
                         VerticalOptions="CenterAndExpand"/>
-                </FlexLayout>
-                <FlexLayout
-                    Direction="Row"
-                    AlignItems="Center">
+                </StackLayout>
+                <StackLayout
+                    Orientation="Horizontal"
+                    HorizontalOptions="StartAndExpand">
                     <Switch Margin="10,5,0,0"
                         x:Name="red"
                         Toggled="Handle_Toggled_12"
@@ -209,7 +168,7 @@
                     <Label Text="Received Red Card"
                         Margin="10,3"
                         VerticalOptions="CenterAndExpand"/>
-                </FlexLayout>
+                </StackLayout>
                 <Label Text="Extra Comments:"
                     Margin="10"
                     FontSize="20"/>
@@ -221,10 +180,9 @@
                     TextChanged="Comment_Box_Updated"
                     Keyboard="Text"
                     AutoSize="TextChanges"/>
-                <FlexLayout
-                    Direction="Row"
-                    AlignItems="Center"
-                    JustifyContent="Center">
+                <StackLayout
+                    Orientation="Horizontal"
+                    HorizontalOptions="CenterAndExpand">
                     <Button Text="Back"
                         Clicked="backClicked"
                         Margin="5,1"/>
@@ -232,7 +190,7 @@
                         Text="Save"
                         Clicked="saveClicked"
                         Margin="5,1"/>
-                </FlexLayout>
+                </StackLayout>
             </StackLayout>
         </ScrollView>
     </ContentPage.Content>
