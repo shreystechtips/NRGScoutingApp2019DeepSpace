@@ -13,7 +13,7 @@
                                 <Slider x:Name="timeSlider" ValueChanged="timerValueChanged" Margin="20,0,20,5" Minimum="0" MinimumTrackColor="Red"/>
                                 <StackLayout Orientation="Horizontal" HorizontalOptions="CenterAndExpand">
                                     <Button HorizontalOptions="FillAndExpand" BackgroundColor="#fdad13" x:Name="resetTimer" TextColor="White" Text="Reset" ContentLayout="Top,0" Image="ic_exchange.png" Clicked="resetClicked" FontSize="Small" Margin="0"/>
-                                    <Button x:Name="startTimer" BackgroundColor="#fdad13" TextColor="White" Text="Start Timer" ContentLayout="Top,0" Image="ic_timer.png" Clicked="startClicked" FontSize="Medium" Margin="0"/>
+                                    <Button x:Name="startTimer" BackgroundColor="DarkRed" TextColor="White" Text="Start Timer" ContentLayout="Top,0" Image="ic_timer.png" Clicked="startClicked" FontSize="Medium" Margin="0"/>
                                 </StackLayout>
 
                             <Grid HorizontalOptions="Start" VerticalOptions="FillAndExpand" RowSpacing="30" ColumnSpacing="30" Margin="10,10">
@@ -27,18 +27,18 @@
                                                 <ColumnDefinition Width="*" />
                                                 <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
-                                        <StackLayout Grid.Column="0" Grid.Row="0" HorizontalOptions="Fill">
+                                        <StackLayout Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" HorizontalOptions="Fill">
                                             <Label x:Name="currentCellAmt" HorizontalOptions="CenterAndExpand" Text="0" TextColor="{DynamicResource TextTernaryColor}" FontSize="60"/>
                                             <Label HorizontalOptions="Center" TextColor="{DynamicResource TextTernaryColor}" HorizontalTextAlignment="Center" Text="current # of cells"/>
                                         </StackLayout>
-                                        <Button x:Name="dropOutside" BackgroundColor="#fdad13" TextColor="White" Text="Outside" Grid.Row="0" Grid.Column="1" Clicked="dropClicked" FontSize="Medium" Margin="0"/>
-                                        <Button x:Name="dropInside" BackgroundColor="#fdad13" TextColor="White" Text="Inside" Grid.Row="0" Grid.Column="2" Clicked="dropClicked" FontSize="Medium" Margin="0"/>
+                                        <Button x:Name="dropOutside" BackgroundColor="#fdad13" TextColor="White" Text="Outside" Grid.Row="0" Grid.Column="2" Clicked="dropClicked" FontSize="Medium" Margin="0"/>
+                                        <Button x:Name="dropInside" BackgroundColor="#fdad13" TextColor="White" Text="Inside" Grid.Row="1" Grid.Column="2" Clicked="dropClicked" FontSize="Medium" Margin="0"/>
 
-                                        <Button x:Name="pickItem" BackgroundColor="#fdad13" TextColor="White" Text="Pick" Grid.Row="1" Grid.Column="0" Clicked="pickClicked" FontSize="Medium" Margin="0"/>
-                                        <Button x:Name="dropLow" BackgroundColor="#fdad13" TextColor="White" Text="Low" Grid.Row="1" Grid.Column="2" Clicked="dropClicked" FontSize="Medium" Margin="0"/>
-                                        <Button x:Name="dropNone" BackgroundColor="#fdad13" TextColor="White" Text="Miss" Grid.Row="2" Grid.Column="2" Clicked="dropClicked" FontSize="Medium" Margin="0"/>
+                                        <Button x:Name="pickItem" BackgroundColor="DarkRed" TextColor="White" Text="Pick" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Clicked="pickClicked" FontSize="Medium" Margin="10"/>
+                                        <Button x:Name="dropLow" BackgroundColor="#fdad13" TextColor="White" Text="Low" Grid.Row="2" Grid.Column="2" Clicked="dropClicked" FontSize="Medium" Margin="0"/>
+                                        <Button x:Name="dropNone" BackgroundColor="#fdad13" TextColor="White" Text="Miss" Grid.Row="2" Grid.Column="1" Clicked="dropClicked" FontSize="Medium" Margin="0"/>
                                         <StackLayout Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="1" Orientation="Horizontal">
-                                             <Button x:Name="cubePicked3" BackgroundColor="#fdad13" HorizontalOptions="FillAndExpand" TextColor="White" Text="Undo" Clicked="undoClicked" FontSize="Medium" Margin="0"/>
+                                             <Button x:Name="cubePicked3" HorizontalOptions="Fill" TextColor="White" Text="Undo" Clicked="undoClicked" FontSize="Medium" BackgroundColor="DarkRed" Padding="12,13"/>
                                             <!--<Button x:Name="cubePicked4" BackgroundColor="#fdad13"  HorizontalOptions="FillAndExpand" TextColor="White" Text="Miss" Clicked="cubeClicked" FontSize="Medium" Margin="0"/>-->
                                         </StackLayout>
                                 </Grid>

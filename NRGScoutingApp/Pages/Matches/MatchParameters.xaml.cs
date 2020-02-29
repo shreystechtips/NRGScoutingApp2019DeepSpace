@@ -82,15 +82,18 @@ namespace NRGScoutingApp {
                 if (((JObject)temp).ContainsKey(matchnum.Text))
                 {
                     temp = temp[matchnum.Text];
-                    if (temp["blue"].Contains(teamName))
+                    Debug.WriteLine(temp);
+                    if (temp["blue"].ToArray().Contains(teamName))
                     {
+                        var list = temp["blue"].ToArray().ToList();
+                        PositionPicker.SelectedIndex = 3 + list.IndexOf(teamName);
                         showError = false;
-                        PositionPicker.SelectedIndex = 4 + ((JArray)temp["blue"]).IndexOf(teamName);
                     }
-                    else
+                    else if (temp["red"].ToArray().Contains(teamName))
                     {
+                        var list = temp["red"].ToArray().ToList();
+                        PositionPicker.SelectedIndex = list.IndexOf(teamName);
                         showError = false;
-                        PositionPicker.SelectedIndex = 1 + ((JArray)temp["red"]).IndexOf(teamName);
                     }
                 }
                 else

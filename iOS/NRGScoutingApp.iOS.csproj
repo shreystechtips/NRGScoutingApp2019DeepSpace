@@ -38,8 +38,8 @@
     <CodesignKey>iPhone Distribution: Robert Doran (TCL24SVD7H)</CodesignKey>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <MtouchLink>SdkOnly</MtouchLink>
-    <MtouchArch>ARMv7, ARM64</MtouchArch>
-    <MtouchHttpClientHandler>NSUrlSessionHandler</MtouchHttpClientHandler>
+    <MtouchArch>ARM64</MtouchArch>
+    <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
     <PlatformTarget>x86</PlatformTarget>
     <BuildIpa>true</BuildIpa>
     <MtouchUseLlvm>true</MtouchUseLlvm>
@@ -47,9 +47,9 @@
     <AssemblyName>NRGScoutingApp</AssemblyName>
    
     <CodesignProvision>Automatic:AppStore</CodesignProvision>
+<CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
-    <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\iPhoneSimulator\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
@@ -62,6 +62,8 @@
     <MtouchUseLlvm>true</MtouchUseLlvm>
     <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
     <MtouchExtraArgs>--setenv:SERVER_API_KEY=28e40d64b3ffaf525fecae2afc260fc9</MtouchExtraArgs>
+    <MtouchDebug>true</MtouchDebug>
+    <MtouchNoSymbolStrip>true</MtouchNoSymbolStrip>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
     <DebugSymbols>true</DebugSymbols>
@@ -73,7 +75,6 @@
     <WarningLevel>4</WarningLevel>
     <CodesignKey>iPhone Developer: nrg948infotech@gmail.com (M38472HNQV)</CodesignKey>
     <DeviceSpecificBuild>true</DeviceSpecificBuild>
-    <MtouchDebug>true</MtouchDebug>
     <MtouchNoSymbolStrip>true</MtouchNoSymbolStrip>
     <MtouchFastDev>true</MtouchFastDev>
     <MtouchFloat32>true</MtouchFloat32>
@@ -82,8 +83,9 @@
     <MtouchArch>ARM64</MtouchArch>
     <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
     <PlatformTarget>x86</PlatformTarget>
-    <CodesignProvision>iOS Team Provisioning Profile: *</CodesignProvision>
     <AssemblyName>NRGScoutingApp</AssemblyName>
+    <CodesignProvision>Automatic:AdHoc</CodesignProvision>
+<MtouchSdkVersion>13.2</MtouchSdkVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
