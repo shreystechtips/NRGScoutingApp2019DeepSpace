@@ -1,5 +1,5 @@
-# NRGScoutingApp2019DeepSpace
-NRG Scouting app for 2019 Deep Space FRC Game
+# NRGScoutingApp2020 InfiniteRecharge (Replay)
+NRG Scouting app for 2020/2021 Infinite Recharge/Replay FRC Game
 
 ## Table of Contents
 - [How to Install](#how-to-install)
